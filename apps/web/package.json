@@ -9,7 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-slider": "^1.2.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "class-variance-authority": "^0.7.0",

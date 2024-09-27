@@ -4,6 +4,7 @@ import BonkTickerImage from '@/app/assets/images/tickers/bonk.png'
 import PopcatTickerImage from '@/app/assets/images/tickers/popcat.png'
 import SolTickerImage from '@/app/assets/images/tickers/sol.png'
 import WifTickerImage from '@/app/assets/images/tickers/wif.png'
+import { TradeDirection } from '@/types/TradeDirection';
 import { PriceDirection } from "../PriceDirection";
 
 export function TickersBar() {
@@ -42,7 +43,7 @@ type TickerBarItemProps = {
   ticker: string;
   image: StaticImageData;
   price: string;
-  priceDirection: 'up' | 'down'
+  priceDirection: TradeDirection
 }
 
 function TickerBarItem(props: TickerBarItemProps) {
