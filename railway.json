@@ -1,0 +1,25 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "pnpm build:server",
+    "nixpacksPlan": {
+      "providers": [
+        "...",
+        "gcc",
+        "python"
+      ]
+    },
+    "watchPatterns": [
+      "/app/server/**"
+    ]
+  },
+  "deploy": {
+    "runtime": "V2",
+    "numReplicas": 1,
+    "startCommand": "pnpm --filter server start:prod",
+    "sleepApplication": false,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10
+  }
+}
