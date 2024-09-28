@@ -31,7 +31,6 @@ Resources:
     signature: Uint8Array,
     signer: PublicKey
   }) {
-    console.log('test', nacl)
     return nacl.sign.detached.verify(
       inputs.message,
       inputs.signature,

@@ -39,12 +39,19 @@ export function useWalletAuth() {
       signer: wallet.publicKey.toBase58()
     })
 
-    console.log('verifed', { verified})
+    localStorage.setItem('jwt', verified.token);
+
+    const me = await trpc.profile.me.query()
+
+    console.log('verifed', { token: verified, me })
   }
 
   useEffect(() => {
     if (debouncedWalletConnected) {
-      onAuthSignMessage().catch(onDisconnect)
+      onAuthSignMessage().catch((e) => {
+        console.error('[auth] failed to login', e)
+        onDisconnect()
+      })
     }
   }, [debouncedWalletConnected])
 
