@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "pnpm run --parallel dev",
+    "start": "pnpm run --filter server start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:server && npm run build:web",
     "build:server": "pnpm --filter server build",
