@@ -19,6 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:start": "npx supabase start",
+    "db:reset": "npx supabase db reset --local",
     "db:types": "npx supabase gen types --lang=typescript --local > src/generated/database.types.ts"
   },
   "dependencies": {
