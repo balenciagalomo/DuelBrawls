@@ -1,0 +1,11 @@
+
+services:
+  server:
+    build: .
+    ports:
+      - "4000:4000"
+    # develop:
+    #   watch:
+    #     - action: sync
+    #       path: .
+    #       target: /code
