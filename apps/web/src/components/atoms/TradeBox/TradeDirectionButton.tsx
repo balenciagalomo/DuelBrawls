@@ -27,7 +27,7 @@ export function TradeDirectionButton(props: TradeDirectionButtonProps) {
   const bgOpacityClass = useMemo(() => {
     if (selected) return "bg-opacity-20 hover:bg-opacity-60"
     return "bg-opacity-100"
-  }, [direction, selected])
+  }, [selected])
 
   const iconColor = useMemo(() => {
     if (!selected) return "white"

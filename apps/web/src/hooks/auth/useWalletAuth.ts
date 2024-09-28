@@ -1,10 +1,8 @@
 'use client';
 
-import Image from 'next/image'
 import { useEffect, useMemo } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 
-import ExampleAvatar from '@/app/assets/images/example-avatar.png'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { trpc } from '@/app/trpc';
@@ -53,7 +51,7 @@ export function useWalletAuth() {
         onDisconnect()
       })
     }
-  }, [debouncedWalletConnected])
+  }, [debouncedWalletConnected, onAuthSignMessage])
 
   return {
     onDisconnect,

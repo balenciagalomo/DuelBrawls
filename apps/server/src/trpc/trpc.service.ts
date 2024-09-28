@@ -4,7 +4,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 
 import { JwtService } from '../auth/jwt.service';
-import { UserRepository } from 'src/database/user.repo';
+import { UserRepository } from '../database/user.repo';
 
 export interface TrpcContext {
   user?: {

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image'
-import { useState, useMemo } from "react";
+import { useState } from "react";
 
 import USDC from '@/app/assets/svgs/usdc.svg'
 import { TradeDirectionButton, TEXT_DIRECTION_COLOR, BG_DIRECTION_COLOR } from "@/components/atoms/TradeBox/TradeDirectionButton";
