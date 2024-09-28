@@ -14,9 +14,9 @@
     "build": "npm run build:server && npm run build:web",
     "build:server": "pnpm --filter server build",
     "build:web": "pnpm --filter web build",
-    "db:start": "pnpm --filter server build:start",
-    "db:reset": "pnpm --filter server build:reset",
-    "db:types": "pnpm --filter server build:types"
+    "db:start": "npx supabase start",
+    "db:reset": "npx supabase db reset --local",
+    "db:types": "npx supabase gen types --lang=typescript --local > apps/server/src/generated/database.types.ts"
   },
   "dependencies": {
     "next": "14.2.13"
