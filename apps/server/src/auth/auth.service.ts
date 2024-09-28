@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
 import * as nacl from 'tweetnacl';
+import { nanoid } from 'nanoid'
 
 @Injectable()
 export class AuthService {
   constructor() { }
 
   private generateNonce() {
-    return Math.random() * 1000
+    return nanoid()
   }
 
   public genreateLoginMessage() {
