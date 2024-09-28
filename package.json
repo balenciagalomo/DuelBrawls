@@ -22,7 +22,6 @@
     "next": "14.2.13"
   },
   "devDependencies": {
-    "@repo/eslint-config": "*",
     "turbo": "latest"
   },
   "engines": {
