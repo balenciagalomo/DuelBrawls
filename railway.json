@@ -8,11 +8,14 @@
         "setup": {
           "nixPkgs": [
             "...",
-            "gcc",
-            "python39"
+            "gcc"
           ]
         }
-      }
+      },
+      "providers": [
+        "...",
+        "python"
+      ]
     },
     "watchPatterns": [
       "/app/server/**"
