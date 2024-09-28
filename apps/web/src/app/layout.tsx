@@ -17,8 +17,8 @@ const protoMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Areana",
-  description: "PvP trading",
+  title: "The Arena",
+  description: "A PvP social trading game",
 };
 
 export default function RootLayout({

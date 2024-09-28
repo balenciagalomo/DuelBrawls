@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "build": "turbo build",
     "dev": "pnpm run --parallel dev",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:server && npm run build:web",
@@ -11,6 +12,10 @@
   },
   "dependencies": {
     "next": "14.2.13"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "turbo": "latest"
   },
   "keywords": [],
   "author": "",
