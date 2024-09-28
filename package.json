@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm run build:server && npm run build:web",
     "build:server": "pnpm --filter server build",
-    "build:web": "pnpm --filter web build"
+    "build:web": "pnpm --filter web build",
+    "db:start": "pnpm --filter server build:start",
+    "db:reset": "pnpm --filter server build:reset",
+    "db:types": "pnpm --filter server build:types"
   },
   "dependencies": {
     "next": "14.2.13"
