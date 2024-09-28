@@ -4,10 +4,17 @@
     "builder": "NIXPACKS",
     "buildCommand": "pnpm build:server",
     "nixpacksPlan": {
+      "phases": {
+        "setup": {
+          "nixPkgs": [
+            "...",
+            "gcc",
+            "python38"
+          ]
+        }
+      },
       "providers": [
-        "...",
-        "gcc",
-        "python"
+        "..."
       ]
     },
     "watchPatterns": [
