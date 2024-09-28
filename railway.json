@@ -12,10 +12,7 @@
             "python39"
           ]
         }
-      },
-      "providers": [
-        "..."
-      ]
+      }
     },
     "watchPatterns": [
       "/app/server/**"
