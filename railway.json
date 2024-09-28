@@ -9,7 +9,7 @@
           "nixPkgs": [
             "...",
             "gcc",
-            "python38"
+            "python39"
           ]
         }
       },
