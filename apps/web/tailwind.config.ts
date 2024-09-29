@@ -50,6 +50,10 @@ const config: Config = {
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
 				},
+        trade: {
+          up: '#77FF7A',
+          down: '#FF4E7A'
+        }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

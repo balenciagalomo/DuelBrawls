@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useState } from "react";
 
 import USDC from '@/app/assets/svgs/usdc.svg'
-import { TradeDirectionButton, TEXT_DIRECTION_COLOR, BG_DIRECTION_COLOR } from "@/components/atoms/TradeBox/TradeDirectionButton";
+import { TradeDirectionButton, TEXT_DIRECTION_COLOR, BG_DIRECTION_COLOR, getBorderColorClass, getTradeBackgroundColorClass, getTradeTextClass } from "@/components/atoms/TradeBox/TradeDirectionButton";
 import { TradeDirection } from '@/types/TradeDirection'
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -98,11 +98,11 @@ type PlaceTradeProps = {
 function PlaceTrade(props: PlaceTradeProps) {
   const { direction } = props;
 
-  const borderClass = `border-2 border-[${TEXT_DIRECTION_COLOR[direction]}]`
-  const bgColorClass = `bg-[${BG_DIRECTION_COLOR[direction]}]`
+  const borderClass = `border-2 ${getBorderColorClass(direction)}`
+  const bgColorClass = getTradeBackgroundColorClass(direction)
 
   return (
-    <Button className={`text-white bg-opacity-20 ${bgColorClass} ${borderClass}`}>
+    <Button className={`text-white bg-opacity-20 hover:bg-opacity-40 ${bgColorClass} hover:${bgColorClass} ${borderClass}`}>
       Place trade
     </Button>
   )
@@ -129,7 +129,7 @@ function FutureTradeOrder(props: FutureTradeOrderProps) {
         </div>
         <div className='flex flex-col items-start gap-y-'>
           <p className='text-xs text-gray-500'>{description}</p>
-          <p className={`text-xs text-[${TEXT_DIRECTION_COLOR[direction]}]`}>{estimated}</p>
+          <p className={`text-xs ${getTradeTextClass(direction)}`}>{estimated}</p>
         </div>
       </div>
     </div>

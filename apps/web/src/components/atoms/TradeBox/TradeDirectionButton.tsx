@@ -16,16 +16,16 @@ export function TradeDirectionButton(props: TradeDirectionButtonProps) {
 
   const labelColorClass = useMemo(() => {
     if (!selected) return "text-white"
-    return `text-[${TEXT_DIRECTION_COLOR[direction]}]`
+    return getTradeTextClass(direction)
   }, [direction, selected]);
 
   const bgColorClass = useMemo(() => {
     if (!selected) return "bg-[#151A22]"
-    return `bg-[${BG_DIRECTION_COLOR[direction]}]`
+    return getTradeBackgroundColorClass(direction)
   }, [direction, selected])
 
   const bgOpacityClass = useMemo(() => {
-    if (selected) return "bg-opacity-20 hover:bg-opacity-60"
+    if (selected) return "bg-opacity-20 hover:bg-opacity-40"
     return "bg-opacity-100"
   }, [selected])
 
@@ -53,4 +53,37 @@ export const TEXT_DIRECTION_COLOR: Record<TradeDirection, string> = {
 export const BG_DIRECTION_COLOR: Record<TradeDirection, string> = {
   'up': '#77FF87',
   'down': '#FF4E7A',
+}
+
+export const getTradeTextClass = (direction: TradeDirection) => {
+  switch (direction) {
+    case 'up':
+      return 'text-trade-up'
+    case 'down':
+      return 'text-trade-down'
+    default:
+      return ""
+  }
+}
+
+export const getTradeBackgroundColorClass = (direction: TradeDirection) => {
+  switch (direction) {
+    case 'up':
+      return 'bg-trade-up'
+    case 'down':
+      return 'bg-trade-down'
+    default:
+      return ""
+  }
+}
+
+export const getBorderColorClass = (direction: TradeDirection) => {
+  switch (direction) {
+    case 'up':
+      return 'border-trade-up'
+    case 'down':
+      return 'border-trade-down'
+    default:
+      return ""
+  }
 }
