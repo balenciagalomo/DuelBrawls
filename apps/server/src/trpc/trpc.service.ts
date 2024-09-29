@@ -26,31 +26,46 @@ export class TrpcService {
     private readonly user: UserRepository
   ) { }
 
-  public createContext() {
+  public async getAuthContext(inputs: {
+    jwt: JwtService,
+    userRepo: UserRepository,
+    token: string | undefined
+  }): Promise<TrpcContext> {
+    try {
+      const { token, jwt, userRepo } = inputs
+      if (!token || !jwt.verifyToken(token)) {
+        throw new Error('Invalid auth token')
+      }
+      const decoded = jwt.decode(token)
+      const wallet = new PublicKey(decoded.walletAddress)
+      const user = await userRepo.findByPubkey(wallet)
+      if (!user.pubkey) throw new Error('Invalid wallet pubkey')
+      return {
+        user: {
+          id: user.id,
+          pubkey: new PublicKey(user.pubkey)
+        }
+      }
+    } catch {
+      return {
+        user: undefined
+      }
+    }
+  }
+
+  public createExpressContext() {
     const jwt = this.jwt;
     const userRepo = this.user
+    const authContext = this.getAuthContext;
     return async (opts: CreateExpressContextOptions): Promise<TrpcContext> => {
       const authorization = opts.req.headers.authorization;
       const token = authorization?.replace('Bearer', '').trim()
-      try {
-        if (!token || !jwt.verifyToken(token)) {
-          throw new Error('Invalid auth token')
-        }
-        const decoded = jwt.decode(token)
-        const wallet = new PublicKey(decoded.walletAddress)
-        const user = await userRepo.findByPubkey(wallet)
-        if (!user.pubkey) throw new Error('Invalid wallet pubkey')
-        return {
-          user: {
-            id: user.id,
-            pubkey: new PublicKey(user.pubkey)
-          }
-        }
-      } catch {
-        return {
-          user: undefined
-        }
-      }
+      const context = await authContext({
+        jwt,
+        token,
+        userRepo
+      })
+      return context;
     }
   };
 
@@ -62,7 +77,6 @@ export class TrpcService {
       if (!ctx.user) {
         throw new TRPCError({ code: 'UNAUTHORIZED' });
       }
-      console.log('hi')
       return opts.next({
         ctx: {
           user: ctx.user,

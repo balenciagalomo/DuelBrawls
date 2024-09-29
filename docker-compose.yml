@@ -1,11 +1,28 @@
 
 services:
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command:
+      redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81 --protected-mode yes
+    volumes: 
+      - redis:/data
+
   server:
     build: .
     ports:
       - "4000:4000"
+    depends_on:
+      - redis
+    
     # develop:
     #   watch:
     #     - action: sync
     #       path: .
     #       target: /code
+
+volumes:
+  redis:
+    driver: local

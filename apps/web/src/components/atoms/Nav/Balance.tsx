@@ -12,12 +12,12 @@ export function Balance() {
   const usdcUiAmount = usdcBalanceQuery.data?.value.uiAmount ?? 0
   if (!wallet.publicKey) return null;
   return (
-    <div className="flex flex-row items-center gap-2 p-3 rounded-md bg-[#10141C]">
+    <div className="flex flex-row items-center gap-2 px-3 py-2 rounded-md bg-[#10141C]">
       <div className='flex flex-col gap-y-1'>
-        <p className='text-sm text-gray-500'>Balance</p>
+        <p className='text-xs text-gray-500'>Balance</p>
         <div className='flex flex-row gap-x-2'>
           <Image src={USDC} alt='usdc' />
-          <p className='text-sm'>${usdcUiAmount}</p>
+          <p className='text-xs'>${usdcUiAmount}</p>
         </div>
       </div>
       <div className='w-8' />

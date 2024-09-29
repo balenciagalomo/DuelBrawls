@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { PriceDirection } from "@/components/atoms/PriceDirection";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { TradeDirection } from '@/types/TradeDirection'
+import { getTradeBackgroundColorClass, getTradeTextClass } from "./styles";
 
 type TradeDirectionButtonProps = ButtonProps & {
   direction: TradeDirection
@@ -53,37 +54,4 @@ export const TEXT_DIRECTION_COLOR: Record<TradeDirection, string> = {
 export const BG_DIRECTION_COLOR: Record<TradeDirection, string> = {
   'up': '#77FF87',
   'down': '#FF4E7A',
-}
-
-export const getTradeTextClass = (direction: TradeDirection) => {
-  switch (direction) {
-    case 'up':
-      return 'text-trade-up'
-    case 'down':
-      return 'text-trade-down'
-    default:
-      return ""
-  }
-}
-
-export const getTradeBackgroundColorClass = (direction: TradeDirection) => {
-  switch (direction) {
-    case 'up':
-      return 'bg-trade-up'
-    case 'down':
-      return 'bg-trade-down'
-    default:
-      return ""
-  }
-}
-
-export const getBorderColorClass = (direction: TradeDirection) => {
-  switch (direction) {
-    case 'up':
-      return 'border-trade-up'
-    case 'down':
-      return 'border-trade-down'
-    default:
-      return ""
-  }
 }
