@@ -1,12 +1,23 @@
 import { Injectable } from '@nestjs/common';
-
+import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js'
+
 import { Database } from '../generated/database.types'
+import { SecretMissingError } from '../config/error';
 
 @Injectable()
 export class DatabaseService {
-  public supabase = createClient<Database>(
-    "http://127.0.0.1:54321",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU"
-  )
+  public supabase: ReturnType<typeof createClient<Database>>;
+
+  constructor(
+    private readonly config: ConfigService
+  ) {
+    const url = this.config.get<string>('supabase.url');
+    const serviceKey = this.config.get<string>('supabase.serviceRoleKey');
+
+    if (!url) throw new SecretMissingError('supabase.url')
+    if (!serviceKey) throw new SecretMissingError('supabase.serviceRoleKey')
+    
+    this.supabase = createClient<Database>(url, serviceKey)
+  }
 }

@@ -1,13 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as jwt from "jsonwebtoken";
 import { z } from 'zod';
 
-const JWT_SECRET = 'secret';
-const JWT_TTL_SECONDS = 24 * 60 * 60; // 24 hours
+import { SecretMissingError } from '../config/error'
 
 @Injectable()
 export class JwtService {
-  constructor() { }
+
+  private jwtSecret: string;
+  private jwtTTL: number;
+
+  constructor(
+    private readonly config: ConfigService
+  ) {
+    const secret = this.config.get<string>('jwt.secret');
+    const ttl = this.config.get<number>('jwt.ttl');
+
+    if (!secret) throw new SecretMissingError('jwt.secret')
+    if (!ttl) throw new SecretMissingError('jwt.ttl')
+
+    this.jwtSecret = secret;
+    this.jwtTTL = ttl;
+  }
 
   public decode(token: string) {
     const decoded = jwt.decode(token, {
@@ -19,7 +34,7 @@ export class JwtService {
   }
 
   public verifyToken(token: string) {
-    return jwt.verify(token, JWT_SECRET, {
+    return jwt.verify(token, this.jwtSecret, {
       ignoreExpiration: false
     })
   }
@@ -31,9 +46,9 @@ export class JwtService {
       {
         walletAddress: inputs.user
       },
-      JWT_SECRET,
+      this.jwtSecret,
       {
-        expiresIn: JWT_TTL_SECONDS,
+        expiresIn: this.jwtTTL,
       },
     );
 
