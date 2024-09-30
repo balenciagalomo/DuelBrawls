@@ -34,21 +34,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      match_searches: {
+        Row: {
+          created_at: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          id: number
+          match_search_state: Database["public"]["Enums"]["match_search_state"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          id?: number
+          match_search_state: Database["public"]["Enums"]["match_search_state"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_type?: Database["public"]["Enums"]["game_type"]
+          id?: number
+          match_search_state?: Database["public"]["Enums"]["match_search_state"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_searches_user_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
           id: string
-          pubkey: string | null
+          pubkey: string
         }
         Insert: {
           created_at?: string
           id?: string
-          pubkey?: string | null
+          pubkey: string
         }
         Update: {
           created_at?: string
           id?: string
-          pubkey?: string | null
+          pubkey?: string
         }
         Relationships: []
       }
@@ -60,7 +92,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      game_type: "one_vs_one"
+      match_search_state: "active" | "cancel" | "complete"
     }
     CompositeTypes: {
       [_ in never]: never

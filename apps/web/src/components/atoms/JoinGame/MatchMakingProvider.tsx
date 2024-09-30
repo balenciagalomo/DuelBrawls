@@ -1,12 +1,13 @@
 'use client';
 
-import { MatchSearchResult, useMatchSearch } from '@/hooks/match/useMatchSearch';
 import {createContext, PropsWithChildren, useContext} from 'react'
+import { MatchSearchResult, useMatchSearch } from '@/hooks/match/useMatchSearch';
+import { useMatchSearchCancel } from '@/hooks/match/useMatchSearchCancel';
 
 type MatchMakingContextProps = {
   matchSearch: ReturnType<typeof useMatchSearch>
   onJoin: () => Promise<MatchSearchResult>
-  onCancel: () => void;
+  onCancel: () => Promise<void>;
 }
 
 const MatchMakingContext = createContext<MatchMakingContextProps | null>(null)
@@ -24,9 +25,13 @@ type MatchMakingProviderProps = {
 export function MatchMakingProvider(props: PropsWithChildren<MatchMakingProviderProps>) {
   const {children} = props;
   const matchSearch = useMatchSearch()
+  const matchSearchCancel = useMatchSearchCancel()
 
   const onJoin = () => matchSearch.mutateAsync()
-  const onCancel = () => matchSearch.reset()
+  const onCancel = async () => {
+    await matchSearchCancel.mutateAsync()
+    matchSearch.reset()
+  }
 
   return (
     <MatchMakingContext.Provider value={{
