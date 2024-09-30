@@ -2,6 +2,7 @@ import { TickersBar } from "@/components/atoms/TickersBar/TickersBar";
 import { TradeBox } from "@/components/atoms/TradeBox/TradeBox";
 import { ProfitAndLossChart } from "@/components/atoms/Charts/ProfitAndLossChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TradingChart } from "@/components/atoms/Charts/TradingChart";
 
 export default async function Game() {
   return (
@@ -10,11 +11,11 @@ export default async function Game() {
       <div className="flex w-full flex-row justify-between items-start gap-x-4 h-[calc(100vh-200px)]">
         <Card className="flex flex-col w-[70%] h-full">
           <CardHeader className="pb-2">
-            <CardTitle className="text-center">Profit and Loss</CardTitle>
+            <CardTitle className="text-center">TRADING CHART</CardTitle>
           </CardHeader>
           <CardContent className="flex-grow p-0">
             <div className="w-full h-full">
-              <ProfitAndLossChart />
+              <TradingChart />
             </div>
           </CardContent>
         </Card>
