@@ -6,9 +6,19 @@ import { candlestickData } from '@/data/candlestickData';
 
 export const ProfitAndLossChart: React.FC = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<ReturnType<typeof createChart> | null>(null);
 
   useEffect(() => {
     if (chartContainerRef.current) {
+      const handleResize = () => {
+        if (chartRef.current && chartContainerRef.current) {
+          chartRef.current.applyOptions({
+            width: chartContainerRef.current.clientWidth,
+            height: chartContainerRef.current.clientHeight,
+          });
+        }
+      };
+
       const chart = createChart(chartContainerRef.current, {
         layout: {
           background: { type: ColorType.Solid, color: '#222' },
@@ -22,33 +32,18 @@ export const ProfitAndLossChart: React.FC = () => {
         height: chartContainerRef.current.clientHeight,
       });
 
-      chart.priceScale('right').applyOptions({
-        borderColor: '#71649C',
-      });
-
-      chart.timeScale().applyOptions({
-        borderColor: '#71649C',
-        timeVisible: true,
-        secondsVisible: false,
-        barSpacing: 10,
-      });
+      chartRef.current = chart;
 
       chart.applyOptions({
-        layout: {
-          fontFamily: "'Roboto', sans-serif",
+        rightPriceScale: {
+          borderVisible: true,
+          borderColor: '#71649C',
         },
-        crosshair: {
-          mode: 1,
-          vertLine: {
-            width: 4,
-            color: '#C3BCDB44',
-            style: 0,
-            labelBackgroundColor: '#9B7DFF',
-          },
-          horzLine: {
-            color: '#9B7DFF',
-            labelBackgroundColor: '#9B7DFF',
-          },
+        timeScale: {
+          borderVisible: true,
+          borderColor: '#71649C',
+          timeVisible: true,
+          secondsVisible: false,
         },
       });
 
@@ -62,33 +57,7 @@ export const ProfitAndLossChart: React.FC = () => {
 
       candlestickSeries.setData(candlestickData);
 
-      const areaSeries = chart.addAreaSeries({
-        lastValueVisible: false,
-        crosshairMarkerVisible: false,
-        lineColor: 'transparent',
-        topColor: 'rgba(56, 33, 110,0.6)',
-        bottomColor: 'rgba(56, 33, 110, 0.1)',
-      });
-
-      const areaData = candlestickData.map(d => ({ time: d.time, value: (d.close + d.open) / 2 }));
-      areaSeries.setData(areaData);
-
-      candlestickSeries.priceScale().applyOptions({
-        autoScale: false,
-        scaleMargins: {
-          top: 0.1,
-          bottom: 0.2,
-        },
-      });
-
       chart.timeScale().fitContent();
-
-      const handleResize = () => {
-        chart.applyOptions({ 
-          width: chartContainerRef.current?.clientWidth,
-          height: chartContainerRef.current?.clientHeight 
-        });
-      };
 
       window.addEventListener('resize', handleResize);
 
