@@ -2,18 +2,21 @@ import { trpc } from "@/app/trpc";
 import { PublicKey } from "@solana/web3.js";
 import { useMutation } from "@tanstack/react-query";
 
-export type MatchSearchResult = {
-  participants: PublicKey[];
+export type MatchCreatedResult = {
+  invites: Array<{
+    id: string;
+    pubkey: string
+  }>;
 }
 
 export function useMatchSearch() {
   return useMutation({
     mutationFn: async () => {
       // if (!publicKey) throw new Error('Please connect your wallet first')
-      return await new Promise<MatchSearchResult>((resolve, reject) => {
+      return await new Promise<MatchCreatedResult>((resolve, reject) => {
         const subscription = trpc.match.watch.subscribe(undefined, {
           async onStarted() {
-            await trpc.match.find.mutate()
+            await trpc.match.enterQueue.mutate()
           },
           onData(data) {
             const timeout = setTimeout(() => {
@@ -22,9 +25,7 @@ export function useMatchSearch() {
             }, 1000 * 60 * 1)
 
             subscription.unsubscribe();
-            resolve({
-              participants: data.participants.map(value => new PublicKey(value))
-            });
+            resolve(data);
             clearTimeout(timeout);
           },
           onError(err) {

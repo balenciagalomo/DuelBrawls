@@ -8,6 +8,9 @@ export type AppEventsMap = {
     pubkey: string;
   },
   [AppEvents.MatchQueueInviteSent]: {
-    participants: string[];
+    invites: Array<{
+      id: string;
+      pubkey: string
+    }>;
   }
 }

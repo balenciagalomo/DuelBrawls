@@ -14,7 +14,7 @@ export function MatchFound() {
   const { publicKey } = useWallet()
 
   const opponent = useMemo(() => {
-    return matchSearch.data?.participants.find(item => item.toBase58() !== publicKey?.toBase58())
+    return matchSearch.data?.invites.find(item => item.pubkey !== publicKey?.toBase58())
   }, [publicKey, matchSearch.data])
 
   return (
@@ -29,7 +29,7 @@ export function MatchFound() {
             label={publicKey?.toBase58().slice(0, 6)} />
           <p>vs</p>
           <MatchOpponent
-            label={opponent?.toBase58().slice(0, 6)} />
+            label={opponent?.pubkey.slice(0, 6)} />
         </div>
         <div className="flex flex-1 flex-row justify-between items-center">
           <InfoItem heading="Bet amount" description="$100" />

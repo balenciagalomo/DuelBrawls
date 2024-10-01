@@ -2,12 +2,24 @@ import { Module } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { UserRepository } from './user.repo';
 import { RedisService } from './redis.service';
-import { MatchSearchRepository } from './match-search.repo';
+import { MatchInviteRepository } from './match-invite.repo';
+import { MatchRepository } from './match.repo';
 
 @Module({
   imports: [],
   controllers: [],
-  providers: [DatabaseService, RedisService, UserRepository, MatchSearchRepository],
-  exports: [RedisService, UserRepository, MatchSearchRepository]
+  providers: [
+    DatabaseService,
+    RedisService,
+    UserRepository,
+    MatchInviteRepository,
+    MatchRepository
+  ],
+  exports: [
+    RedisService,
+    UserRepository,
+    MatchInviteRepository,
+    MatchRepository
+  ]
 })
-export class DatabaseModule {}
+export class DatabaseModule { }

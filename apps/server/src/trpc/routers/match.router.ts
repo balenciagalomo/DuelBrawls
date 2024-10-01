@@ -22,17 +22,17 @@ export class MatchRouter {
 
   public router = this.trpc.router({
     // TODO: Find a match for user, if existing match is on going, return an error
-    find: this.trpc.protectedProcedure.mutation(async ({ ctx }) => {
-      const queueIndex = await this.match.find({
-        requestedBy: ctx.user.pubkey,
+    enterQueue: this.trpc.protectedProcedure.mutation(async ({ ctx }) => {
+      const queueIndex = await this.match.enterQueue({
+        pubkey: ctx.user.pubkey,
         gameType: 'one_vs_one'
       })
       return {
         position: queueIndex
       }
     }),
-    cancel: this.trpc.protectedProcedure.mutation(async ({ ctx }) => {
-      return this.match.cancel({ requestedBy: ctx.user.pubkey })
+    leaveQueue: this.trpc.protectedProcedure.mutation(async ({ ctx }) => {
+      return this.match.leaveQueue({ requestedBy: ctx.user.pubkey })
     }),
     watch: this.trpc.procedure.subscription(() => {
       return observable<AppEventsMap['match_queue::invite_sent']>((emit) => {

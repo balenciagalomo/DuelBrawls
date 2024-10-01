@@ -1,76 +1,174 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
+import { createClient, RedisClientType, SchemaFieldTypes } from 'redis'
 import { RedisService } from '../database/redis.service';
 import { EventsGateway } from '../events/events.gateway';
 import { AppEvents, AppEventsMap } from '../events/events';
-import { GameType, MatchSearchRepository } from '../database/match-search.repo';
+import { MatchInviteRepository } from '../database/match-invite.repo';
+import { MatchRepository } from '../database/match.repo';
+import { UserRepository } from '../database/user.repo';
+
+class MatchNotExistsError extends Error {
+  public message = 'Match does not exists'
+}
 
 enum MatchDatabaseKeys {
   MatchQueue = 'match_queue'
 }
 
+const MATCH_QUEUE_ITEM_TTL_S = 1 * 60;
+
 @Injectable()
 export class MatchService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(MatchService.name);
+  private redis: RedisClientType;
 
   constructor(
-    private readonly redis: RedisService,
+    private readonly redisService: RedisService,
     private readonly eventsGateway: EventsGateway,
-    private readonly matchSearch: MatchSearchRepository
-  ) { }
+    private readonly user: UserRepository,
+    private readonly match: MatchRepository,
+    private readonly matchInvite: MatchInviteRepository
+  ) {
+    this.redis = createClient({
+      url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+      username: process.env.REDIS_USERNAME as string,
+      password: process.env.REDIS_PASSWORD as string,
+    });
+  }
 
-
-  public onModuleInit() {
+  public async onModuleInit() {
+    await this.redis.connect()
+    await this.createMatchQueueSearchIndex().catch(console.error)
     this.redis.on(AppEvents.MatchQueueUserAdded, this.userEnteredMatchQueue.bind(this))
+    // await this.enterQueue({
+    //   pubkey: new PublicKey('61RmQ21VU3AprSKXdGhtBgcyvGp931qFWf2YS7M4kcFZ'),
+    //   gameType: 'one_vs_one',
+    // })
+    // await this.userEnteredMatchQueue({
+    //   pubkey: new PublicKey('61RmQ21VU3AprSKXdGhtBgcyvGp931qFWf2YS7M4kcFZ'),
+    //   gameType: 'one_vs_one',
+    // })
   }
 
   public onModuleDestroy() {
     this.redis.off(AppEvents.MatchQueueUserAdded, this.userEnteredMatchQueue.bind(this))
   }
 
-  private async userEnteredMatchQueue(inputs: {
-    pubkey: PublicKey
-  }) {
-    const queueSize = await this.redis.scard(MatchDatabaseKeys.MatchQueue)
-
-    if (queueSize && queueSize % 2 === 0) {
-      const participants = await this.redis.spop(MatchDatabaseKeys.MatchQueue, 2)
-      this.redis.emit(AppEvents.MatchQueueInviteSent, {
-        participants
-      })
-    }
+  private async createMatchQueueSearchIndex() {
+    // TODO: dev only should remove on staging / production
+    await this.redis.ft.dropIndex('idx:match_queue');
+    return this.redis.ft.create('idx:match_queue', {
+      '$.game_type': {
+        type: SchemaFieldTypes.TEXT,
+      },
+      '$.bet_wage': {
+        type: SchemaFieldTypes.NUMERIC,
+      }
+    }, {
+      ON: 'JSON',
+    });
   }
 
-  public async find(inputs: {
-    requestedBy: PublicKey,
+  private getMatchQueueItemKey(inputs: {
+    pubkey: PublicKey,
+  }) {
+    return `match_queue:${inputs.pubkey.toBase58()}`;
+  }
+
+  private getMatchQueueKeys() {
+    const cursor = 0
+    return this.redis.scan(cursor, { MATCH: 'match_queue:*' })
+  }
+
+  private async userEnteredMatchQueue(inputs: {
+    pubkey: PublicKey,
     gameType: GameType
   }) {
+    // TODO: Return all objects for now, because search isn't working properly
+    const results = await this.redis.ft.search('idx:match_queue', `*`, {
+      LIMIT: {
+        from: 0,
+        size: 2
+      }
+    })
 
-    await this.matchSearch.create({
-      pubkey: inputs.requestedBy,
+    // Remove keys from queue
+    if (results.total === 2) {
+      await this.redis.del(results.documents.map(item => item.id))
+    }
+
+    // Create a match
+    const match = await this.match.create({
       gameType: inputs.gameType
     })
 
-    // TODO: Create redis key using game type
+    // Create invites
+    const invites = await Promise.all(results.documents.map(async item => {
+      if (!item.value.pubkey) {
+        throw new Error("Invalid pubkey")
+      }
+       const invite = await this.matchInvite.create({
+        matchId: match.id,
+        pubkey: new PublicKey(item.value.pubkey)
+      })
 
-    // Only push if item does not exists
-    // const index = await this.redis
-    //   .rpushx(MatchDatabaseKeys.MatchQueue, inputs.requestedBy.toBase58())
-    const index = await this.redis
-      .sadd(MatchDatabaseKeys.MatchQueue, inputs.requestedBy.toBase58())
+      const user = await this.user.findById(invite.user_id)
 
-    this.logger.log(`User added to queue: ${inputs.requestedBy.toBase58()} at position ${index}`)
+      return {
+        id: invite.id,
+        pubkey: user.pubkey
+      }
+    }));
 
-    this.redis.emit(AppEvents.MatchQueueUserAdded, {
-      pubkey: inputs.requestedBy.toBase58()
+    this.logger.log(`Match found, invites created`);
+
+    this.redisService.emit(AppEvents.MatchQueueInviteSent, {
+      invites
     })
-
-    return index
   }
 
-  public async cancel(inputs: {
+  public async enterQueue(inputs: {
+    pubkey: PublicKey,
+    gameType: GameType
+  }) {
+    const key = this.getMatchQueueItemKey({
+      pubkey: inputs.pubkey
+    });
+    const metadata = {
+      pubkey: inputs.pubkey.toBase58(),
+      game_type: inputs.gameType,
+      bet_wage: 100,
+      created_at: Date.now()
+    };
+    await this.redis.json.set(key, '$', metadata).catch(console.error);
+    await this.redis.expire(key, MATCH_QUEUE_ITEM_TTL_S);
+    const { keys } = await this.getMatchQueueKeys()
+    const queuePosition = keys.length;
+
+    this.logger.log(`User added to queue: ${inputs.pubkey.toBase58()} at position ${queuePosition}`)
+
+    this.redis.emit(AppEvents.MatchQueueUserAdded, {
+      pubkey: inputs.pubkey.toBase58(),
+      gameType: inputs.gameType
+    })
+
+    return {
+      position: keys.length
+    }
+    // this.logger.log(`User added to queue: ${inputs.requestedBy.toBase58()} at position ${index}`)
+  }
+
+  public async leaveQueue(inputs: {
     requestedBy: PublicKey,
   }) {
-    return await this.matchSearch.cancel({ pubkey: inputs.requestedBy })
+    const key = this.getMatchQueueItemKey({
+      pubkey: inputs.requestedBy
+    });
+    const metadata = await this.redis.json.type(key)
+    if (!metadata) {
+      throw new MatchNotExistsError();
+    }
+    await this.redis.del(key)
   }
 }
