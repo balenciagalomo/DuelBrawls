@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@drift-labs/sdk": "2.96.0-beta.14",
     "@nestjs/cli": "^10.4.5",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
@@ -29,9 +30,11 @@
     "@nestjs/platform-socket.io": "^10.4.4",
     "@nestjs/websockets": "^10.4.4",
     "@socket.io/redis-adapter": "^8.3.0",
+    "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.3",
     "@supabase/supabase-js": "^2.45.4",
     "@trpc/server": "^10.45.2",
+    "bs58": "^6.0.0",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "nanoid": "3.0.0",

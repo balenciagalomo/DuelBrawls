@@ -13,5 +13,8 @@ export default () => ({
     port: process.env.REDIS_PORT,
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
+  },
+  solana: {
+    rpc: process.env.SOLANA_RPC_URL
   }
 });
