@@ -9,9 +9,18 @@ export function NavHeader() {
   return (
     <nav className="w-full py-4 px-4 flex flex-row items-center justify-between">
       <Link href="/">
-        <Image src={Logo} width={92} height={30} alt="logo" />
+        <Image
+          className="pl-2"
+          src={Logo}
+          width={138}
+          height={45}
+          alt="logo"
+        />
       </Link>
-      <div className="flex flex-row gap-x-4">
+      <div className="flex flex-row gap-x-4 items-center">
+        <Link href="/pnl-demo" className="text-sm text-gray-300 hover:text-white">
+          PnL Demo
+        </Link>
         <Balance />
         <Wallet />
       </div>
