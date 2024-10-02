@@ -2,7 +2,6 @@ import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/commo
 import { PublicKey } from '@solana/web3.js';
 import { createClient, RedisClientType, SchemaFieldTypes } from 'redis'
 import { RedisService } from '../database/redis.service';
-import { EventsGateway } from '../events/events.gateway';
 import { AppEvents } from '../events/events';
 import { MatchInviteRepository } from '../database/match-invite.repo';
 import { MatchRepository } from '../database/match.repo';
@@ -22,7 +21,6 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly redisService: RedisService,
-    private readonly eventsGateway: EventsGateway,
     private readonly user: UserRepository,
     private readonly match: MatchRepository,
     private readonly matchInvite: MatchInviteRepository

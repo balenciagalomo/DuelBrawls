@@ -10,8 +10,9 @@ import { RedisService } from '../../database/redis.service';
 import { AppEvents, AppEventsMap } from '../../events/events';
 import { MatchRepository } from '../../database/match.repo';
 import { MatchInviteRepository } from '../../database/match-invite.repo';
-import { MatchInviteState } from '../../generated/enum.types';
 import { MatchService } from '../../match/match.service';
+import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 @Injectable()
 export class MatchRouter {
@@ -56,7 +57,7 @@ export class MatchRouter {
     activeMatch: this.trpc.protectedProcedure.query(async ({ ctx }) => {
       const activeMatchResult = await this.matchService.findActiveMatchByUserId(ctx.user.id)
       if (!activeMatchResult?.match) return null
-      
+
       const opponentInvite = (await this.matchInvite
         .findInvitesByMatch(activeMatchResult.match.id))
         .find(invite => invite.user_id !== ctx.user.id)
@@ -74,6 +75,22 @@ export class MatchRouter {
         }
       }
     }),
+    declineMatch: this.trpc.protectedProcedure
+      .input(
+        z.object({
+          inviteId: z.string(),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const matchInvite = await this.matchInvite.findInviteById(input.inviteId)
+        if (matchInvite.user_id !== ctx.user.id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        await this.matchInvite.updateInviteState({
+          inviteId: matchInvite.id,
+          inviteState: 'decline'
+        })
+      }),
     randomNumber: this.trpc.procedure.subscription(() => {
       return observable<{
         randomNumber: number,

@@ -52,6 +52,16 @@ export class MatchInviteRepository {
     return results.data
   }
 
+  public async findInviteById(inviteId: string) {
+    const results = await this.database.supabase
+      .from('match_invites')
+      .select()
+      .eq('id', inviteId)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
+
   public async updateInviteState(inputs: {
     inviteId: string;
     inviteState: Database["public"]["Enums"]["match_invite_state"]

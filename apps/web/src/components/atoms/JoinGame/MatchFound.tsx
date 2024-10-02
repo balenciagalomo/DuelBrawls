@@ -10,7 +10,7 @@ import { MatchOpponent } from '@/components/atoms/JoinGame/MatchOpponent';
 import { MVPMatchInformation } from '@/components/atoms/JoinGame/MatchInformation';
 
 export function MatchFound() {
-  const { onCancel, matchSearch } = useMatchMakingContext()
+  const { matchSearch, onCancel, onDecline } = useMatchMakingContext()
   const { publicKey } = useWallet()
 
   const opponent = useMemo(() => {
@@ -40,12 +40,12 @@ export function MatchFound() {
       </button>
       <Button
         variant='up'
-        onClick={onCancel}>
+        onClick={onDecline}>
         Deposit
       </Button>
       <Button
         variant='ghost'
-        onClick={onCancel}>
+        onClick={onDecline}>
         Decline
       </Button>
     </div>
