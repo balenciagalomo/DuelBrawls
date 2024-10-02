@@ -20,6 +20,16 @@ export class UserRepository {
     return results.data
   }
 
+  public async findById(id: string) {
+    const results = await this.database.supabase
+      .from('users')
+      .select()
+      .eq('id', id)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
+
   public async findByPubkey(pubkey: PublicKey) {
     const results = await this.database.supabase
       .from('users')

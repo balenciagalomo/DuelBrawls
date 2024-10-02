@@ -4,7 +4,8 @@ import Image from 'next/image'
 import { useState } from "react";
 
 import USDC from '@/app/assets/svgs/usdc.svg'
-import { TradeDirectionButton, TEXT_DIRECTION_COLOR, BG_DIRECTION_COLOR, getBorderColorClass, getTradeBackgroundColorClass, getTradeTextClass } from "@/components/atoms/TradeBox/TradeDirectionButton";
+import { TradeDirectionButton, } from "@/components/atoms/TradeBox/TradeDirectionButton";
+import { getBorderColorClass, getTradeBackgroundColorClass, getTradeTextClass } from "@/components/atoms/TradeBox/styles";
 import { TradeDirection } from '@/types/TradeDirection'
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -86,7 +87,9 @@ export function TradeBox() {
           />
         </div>}
 
-      <PlaceTrade direction={selectedDirection} />
+      <Button variant={selectedDirection} >
+        Place trade
+      </Button>
     </div>
   )
 }

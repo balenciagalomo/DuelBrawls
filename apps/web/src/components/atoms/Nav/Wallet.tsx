@@ -14,10 +14,10 @@ export function Wallet() {
   } = useWalletAuth();
 
   return (
-    <div className="flex flex-row items-center gap-2 p-3 rounded-md bg-[#10141C]">
+    <div className="flex flex-row items-center gap-2 px-3 py-2 rounded-md bg-[#10141C]">
       {connected && (
         <div className='flex flex-row items-center gap-2 cursor-pointer' onClick={onDisconnect}>
-          <Image src={ExampleAvatar} alt='avatar' />
+          <Image src={ExampleAvatar} alt='avatar' className='w-6  h-6 '/>
           <p className='text-sm'>{displayUsername}</p>
         </div>
       )}

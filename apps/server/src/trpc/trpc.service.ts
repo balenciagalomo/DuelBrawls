@@ -26,33 +26,44 @@ export class TrpcService {
     private readonly user: UserRepository
   ) { }
 
-  public createContext() {
-    const jwt = this.jwt;
-    const userRepo = this.user
-    return async (opts: CreateExpressContextOptions): Promise<TrpcContext> => {
-      const authorization = opts.req.headers.authorization;
-      const token = authorization?.replace('Bearer', '').trim()
-      try {
-        if (!token || !jwt.verifyToken(token)) {
-          throw new Error('Invalid auth token')
-        }
-        const decoded = jwt.decode(token)
-        const wallet = new PublicKey(decoded.walletAddress)
-        const user = await userRepo.findByPubkey(wallet)
-        if (!user.pubkey) throw new Error('Invalid wallet pubkey')
-        return {
-          user: {
-            id: user.id,
-            pubkey: new PublicKey(user.pubkey)
-          }
-        }
-      } catch {
-        return {
-          user: undefined
+  public async getAuthContext(inputs: {
+    jwt: JwtService,
+    userRepo: UserRepository,
+    token: string | undefined
+  }): Promise<TrpcContext> {
+    try {
+      const { token, jwt, userRepo } = inputs
+      if (!token || !jwt.verifyToken(token)) {
+        throw new Error('Invalid auth token')
+      }
+
+      const decoded = jwt.decode(token)
+      const wallet = new PublicKey(decoded.walletAddress)
+      const user = await userRepo.findByPubkey(wallet)
+      if (!user.pubkey) throw new Error('Invalid wallet pubkey')
+      return {
+        user: {
+          id: user.id,
+          pubkey: new PublicKey(user.pubkey)
         }
       }
+    } catch {
+      return {
+        user: undefined
+      }
     }
-  };
+  }
+
+  public async createExpressContext(opts: CreateExpressContextOptions): Promise<TrpcContext> {
+    const authorization = opts.req.headers.authorization;
+    const token = authorization?.replace('Bearer', '').trim()
+    const context = await this.getAuthContext({
+      token,
+      jwt: this.jwt,
+      userRepo: this.user
+    })
+    return context;
+  }
 
   public protectedProcedure = this.trpc.procedure.use(
     async (
@@ -62,7 +73,6 @@ export class TrpcService {
       if (!ctx.user) {
         throw new TRPCError({ code: 'UNAUTHORIZED' });
       }
-      console.log('hi')
       return opts.next({
         ctx: {
           user: ctx.user,

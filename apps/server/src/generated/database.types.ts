@@ -34,21 +34,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      users: {
+      match_invites: {
         Row: {
           created_at: string
           id: string
-          pubkey: string | null
+          invite_state: Database["public"]["Enums"]["match_invite_state"]
+          match_id: string
+          user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          pubkey?: string | null
+          invite_state: Database["public"]["Enums"]["match_invite_state"]
+          match_id: string
+          user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          pubkey?: string | null
+          invite_state?: Database["public"]["Enums"]["match_invite_state"]
+          match_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_invites_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_invites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_searches: {
+        Row: {
+          created_at: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          id: number
+          match_search_state: Database["public"]["Enums"]["match_search_state"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          id?: number
+          match_search_state: Database["public"]["Enums"]["match_search_state"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_type?: Database["public"]["Enums"]["game_type"]
+          id?: number
+          match_search_state?: Database["public"]["Enums"]["match_search_state"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_searches_user_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          created_at: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          game_type: Database["public"]["Enums"]["game_type"]
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          game_type?: Database["public"]["Enums"]["game_type"]
+          id?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          pubkey: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pubkey: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pubkey?: string
         }
         Relationships: []
       }
@@ -60,7 +149,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      game_type: "one_vs_one"
+      match_invite_state: "sent" | "expire" | "accepted" | "decline"
+      match_search_state: "active" | "cancel" | "complete"
     }
     CompositeTypes: {
       [_ in never]: never
