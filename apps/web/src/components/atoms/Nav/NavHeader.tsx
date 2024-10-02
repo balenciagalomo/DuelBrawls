@@ -17,7 +17,10 @@ export function NavHeader() {
           alt="logo"
         />
       </Link>
-      <div className="flex flex-row gap-x-4">
+      <div className="flex flex-row gap-x-4 items-center">
+        <Link href="/pnl-demo" className="text-sm text-gray-300 hover:text-white">
+          PnL Demo
+        </Link>
         <Balance />
         <Wallet />
       </div>
