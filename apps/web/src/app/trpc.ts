@@ -10,7 +10,7 @@ const getHeaders = () => ({
 })
 
 const wsClient = createWSClient({
-  url: `${process.env.NEXT_PUBLIC_API_URL}/trpc`,
+  url: `${process.env.NEXT_PUBLIC_WS_URL}/trpc`,
 });
 
 export const trpc = createTRPCProxyClient<AppRouter>({
