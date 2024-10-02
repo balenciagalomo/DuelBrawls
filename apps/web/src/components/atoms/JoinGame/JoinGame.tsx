@@ -6,7 +6,7 @@ import { MatchFound } from "./MatchFound";
 import { JoinGameIdle } from "./JoinGameIdle";
 
 export function JoinGame() {
-  const { matchSearch } = useMatchMakingContext();
+  const { matchSearch, activeMatchQuery } = useMatchMakingContext();
 
   // if (findMatch.isPending) {
   //   return (
@@ -20,8 +20,8 @@ export function JoinGame() {
   //     </div>
   //   )
   // }
-  
-  if (matchSearch.data) {
+
+  if (activeMatchQuery.data) {
     return <MatchFound />
   }
 

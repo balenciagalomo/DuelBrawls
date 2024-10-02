@@ -64,7 +64,7 @@ export class TrpcRouter implements OnModuleInit, OnModuleDestroy {
       `/trpc`,
       trpcExpress.createExpressMiddleware({
         router: this.appRouter,
-        createContext: this.trpc.createExpressContext(),
+        createContext: this.trpc.createExpressContext.bind(this.trpc),
       }),
     );
   }

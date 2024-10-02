@@ -29,6 +29,7 @@ export class UserRepository {
     if (results.error) throw results.error;
     return results.data
   }
+
   public async findByPubkey(pubkey: PublicKey) {
     const results = await this.database.supabase
       .from('users')

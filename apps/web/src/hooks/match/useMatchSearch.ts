@@ -1,6 +1,6 @@
 import { trpc } from "@/app/trpc";
-import { PublicKey } from "@solana/web3.js";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useActiveMatch } from "./useActiveMatch";
 
 export type MatchCreatedResult = {
   invites: Array<{
@@ -10,6 +10,7 @@ export type MatchCreatedResult = {
 }
 
 export function useMatchSearch() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       // if (!publicKey) throw new Error('Please connect your wallet first')
@@ -33,6 +34,11 @@ export function useMatchSearch() {
           },
         });
       });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [useActiveMatch.queryKey]
+      })
     }
   })
 }

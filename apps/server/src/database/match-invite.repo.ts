@@ -3,6 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 import { DatabaseService } from './database.service';
 import { UserRepository } from './user.repo';
 import { Database } from '../generated/database.types';
+import { MatchInviteState } from '../generated/enum.types';
 
 @Injectable()
 export class MatchInviteRepository {
@@ -27,6 +28,26 @@ export class MatchInviteRepository {
       .select()
       .single()
 
+    if (results.error) throw results.error;
+    return results.data
+  }
+
+  public async findUserInvites(inputs: {
+    userId: string
+  }) {
+    const results = await this.database.supabase
+      .from('match_invites')
+      .select()
+      .eq('user_id', inputs.userId)
+    if (results.error) throw results.error;
+    return results.data
+  }
+
+  public async findInvitesByMatch(matchId: string) {
+    const results = await this.database.supabase
+      .from('match_invites')
+      .select()
+      .eq('match_id', matchId)
     if (results.error) throw results.error;
     return results.data
   }

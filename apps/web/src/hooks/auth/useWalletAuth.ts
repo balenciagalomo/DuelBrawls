@@ -3,9 +3,10 @@
 import { useEffect, useMemo } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 
-import { useWallet } from '@solana/wallet-adapter-react'
+import { useWallet, WalletContextState } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { trpc } from '@/app/trpc';
+import { assert } from '@/utils/assert';
 
 export function useWalletAuth() {
   const wallet = useWallet();
@@ -24,24 +25,22 @@ export function useWalletAuth() {
   const onConnect = async () => walletModal.setVisible(true)
 
   const onAuthSignMessage = async () => {
-    if (!wallet.publicKey || !wallet.signMessage) {
-      throw new Error('Wallet not connected')
-    }
-    const { message } = await trpc.auth.login.query()
-    const encodedMessage = new TextEncoder().encode(message)
-    const signature = await wallet.signMessage(encodedMessage);
+    assertWalletConnected(wallet);
 
-    const verified = await trpc.auth.verify.mutate({
-      message: Array.from(encodedMessage),
-      signature: Array.from(signature),
-      signer: wallet.publicKey.toBase58()
-    })
-
-    localStorage.setItem('jwt', verified.token);
-
-    const me = await trpc.profile.me.query()
-
-    console.log('verifed', { token: verified, me })
+    await trpc.profile.me
+      .query()
+      .catch(async () => {
+        assertWalletConnected(wallet);
+        const { message } = await trpc.auth.login.query()
+        const encodedMessage = new TextEncoder().encode(message)
+        const signature = await wallet.signMessage!(encodedMessage);
+        const verified = await trpc.auth.verify.mutate({
+          message: Array.from(encodedMessage),
+          signature: Array.from(signature),
+          signer: wallet.publicKey!.toBase58()
+        })
+        localStorage.setItem('jwt', verified.token);
+      })
   }
 
   useEffect(() => {
@@ -59,4 +58,12 @@ export function useWalletAuth() {
     displayUsername,
     connected: debouncedWalletConnected
   }
+}
+
+class WalletIsNotConnected extends Error {
+  public message = "Wallet is not connected"
+}
+
+function assertWalletConnected(wallet: WalletContextState) {
+  assert(wallet && wallet.signMessage, new WalletIsNotConnected())
 }

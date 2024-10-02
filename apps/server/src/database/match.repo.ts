@@ -21,4 +21,14 @@ export class MatchRepository {
     if (results.error) throw results.error;
     return results.data
   }
+
+  public async findOneById(matchId: string) {
+    const results = await this.database.supabase
+      .from('matches')
+      .select()
+      .eq('id', matchId)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
 }

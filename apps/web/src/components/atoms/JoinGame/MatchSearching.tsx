@@ -1,12 +1,11 @@
 'use client';
 
 import React from 'react';
-import Image, { StaticImageData } from 'next/image';
 
 import ExampleAvatar from '@/app/assets/images/example-avatar.png'
-import { InfoItem, InfoItemSeperator } from './InfoItem';
-import { useMatchMakingContext } from './MatchMakingProvider';
-import { MatchOpponent } from './MatchOpponent';
+import { useMatchMakingContext } from '@/components/atoms/JoinGame/MatchMakingProvider';
+import { MatchOpponent } from '@/components/atoms/JoinGame/MatchOpponent';
+import { MVPMatchInformation } from '@/components/atoms/JoinGame/MatchInformation';
 
 export function MatchSearching() {
   const { onCancel } = useMatchMakingContext()
@@ -24,13 +23,7 @@ export function MatchSearching() {
           </svg>
           <MatchOpponent />
         </div>
-        <div className="flex flex-1 flex-row justify-between items-center">
-          <InfoItem heading="Bet amount" description="$100" />
-          <InfoItemSeperator />
-          <InfoItem heading="Game mode" description="First to 2x" />
-          <InfoItemSeperator />
-          <InfoItem heading="Time limit" description="24 hours" />
-        </div>
+        <MVPMatchInformation />
       </div>
       <button
         className="text-xs flex self-center text-gray-500"

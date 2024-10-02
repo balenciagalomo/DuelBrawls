@@ -36,6 +36,7 @@ export class TrpcService {
       if (!token || !jwt.verifyToken(token)) {
         throw new Error('Invalid auth token')
       }
+
       const decoded = jwt.decode(token)
       const wallet = new PublicKey(decoded.walletAddress)
       const user = await userRepo.findByPubkey(wallet)
@@ -53,21 +54,16 @@ export class TrpcService {
     }
   }
 
-  public createExpressContext() {
-    const jwt = this.jwt;
-    const userRepo = this.user
-    const authContext = this.getAuthContext;
-    return async (opts: CreateExpressContextOptions): Promise<TrpcContext> => {
-      const authorization = opts.req.headers.authorization;
-      const token = authorization?.replace('Bearer', '').trim()
-      const context = await authContext({
-        jwt,
-        token,
-        userRepo
-      })
-      return context;
-    }
-  };
+  public async createExpressContext(opts: CreateExpressContextOptions): Promise<TrpcContext> {
+    const authorization = opts.req.headers.authorization;
+    const token = authorization?.replace('Bearer', '').trim()
+    const context = await this.getAuthContext({
+      token,
+      jwt: this.jwt,
+      userRepo: this.user
+    })
+    return context;
+  }
 
   public protectedProcedure = this.trpc.procedure.use(
     async (

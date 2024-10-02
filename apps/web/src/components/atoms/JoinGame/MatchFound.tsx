@@ -5,9 +5,9 @@ import { useWallet } from '@solana/wallet-adapter-react';
 
 import ExampleAvatar from '@/app/assets/images/example-avatar.png'
 import { Button } from '@/components/ui/button';
-import { InfoItem, InfoItemSeperator } from '@/components/atoms/JoinGame/InfoItem';
 import { useMatchMakingContext } from '@/components/atoms/JoinGame/MatchMakingProvider';
 import { MatchOpponent } from '@/components/atoms/JoinGame/MatchOpponent';
+import { MVPMatchInformation } from '@/components/atoms/JoinGame/MatchInformation';
 
 export function MatchFound() {
   const { onCancel, matchSearch } = useMatchMakingContext()
@@ -31,13 +31,7 @@ export function MatchFound() {
           <MatchOpponent
             label={opponent?.pubkey.slice(0, 6)} />
         </div>
-        <div className="flex flex-1 flex-row justify-between items-center">
-          <InfoItem heading="Bet amount" description="$100" />
-          <InfoItemSeperator />
-          <InfoItem heading="Game mode" description="First to 2x" />
-          <InfoItemSeperator />
-          <InfoItem heading="Time limit" description="24 hours" />
-        </div>
+        <MVPMatchInformation />
       </div>
       <button
         className="text-xs flex flex-1 text-center text-gray-500 border-trade-up bg-trade-up"
