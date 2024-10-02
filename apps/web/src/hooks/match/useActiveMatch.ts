@@ -9,7 +9,8 @@ export function useActiveMatch() {
   return useQuery({
     queryKey: [QUERY_KEY],
     queryFn: () => trpc.match.activeMatch.query(),
-    enabled: Boolean(authToken.data)
+    enabled: Boolean(authToken.data),
+    refetchInterval: 1000
   })
 }
 
