@@ -3,6 +3,7 @@ import { TradeBox } from "@/components/atoms/TradeBox/TradeBox";
 import { ProfitAndLossChart } from "@/components/atoms/Charts/ProfitAndLossChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TradingChart } from "@/components/atoms/Charts/TradingChart";
+import { MatchResultDialog } from "@/components/atoms/MatchResultDialog/MatchResultDialog";
 
 export default async function Game() {
   return (
@@ -19,8 +20,9 @@ export default async function Game() {
             </div>
           </CardContent>
         </Card>
-        <div className="flex flex-auto w-[30%]" >
+        <div className="flex flex-col flex-auto w-[30%]" >
           <TradeBox />
+          <MatchResultDialog />
         </div>
       </div>
     </div>
