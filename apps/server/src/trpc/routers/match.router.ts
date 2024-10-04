@@ -1,18 +1,17 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { observable } from '@trpc/server/observable';
+import { TRPCError } from '@trpc/server';
 import { PublicKey } from '@solana/web3.js';
+import { z } from 'zod';
 
 import { TrpcService } from '../trpc.service';
 import { UserRepository } from '../../database/user.repo';
 import { MatchSearchService } from '../../match/match-search.service';
 import { RedisService } from '../../database/redis.service';
-import { AppEvents, AppEventsMap } from '../../events/events';
 import { MatchRepository } from '../../database/match.repo';
 import { MatchInviteRepository } from '../../database/match-invite.repo';
 import { MatchService } from '../../match/match.service';
-import { z } from 'zod';
-import { TRPCError } from '@trpc/server';
 
 @Injectable()
 export class MatchRouter {
@@ -42,24 +41,13 @@ export class MatchRouter {
     leaveQueue: this.trpc.protectedProcedure.mutation(async ({ ctx }) => {
       return this.matchSearch.leaveQueue({ requestedBy: ctx.user.pubkey })
     }),
-    watch: this.trpc.procedure.subscription(() => {
-      return observable<AppEventsMap['match_queue::invite_sent']>((emit) => {
-        const listener = (payload: AppEventsMap['match_queue::invite_sent']) => {
-          this.logger.log(`match_queue::user_added event received: ${JSON.stringify(payload)}`)
-          emit.next(payload)
-        }
-        this.redis.on(AppEvents.MatchQueueInviteSent, listener)
-        return () => {
-          this.redis.off(AppEvents.MatchQueueInviteSent, listener)
-        };
-      });
-    }),
     activeMatch: this.trpc.protectedProcedure.query(async ({ ctx }) => {
       const activeMatchResult = await this.matchService.findActiveMatchByUserId(ctx.user.id)
       if (!activeMatchResult?.match) return null
 
-      const opponentInvite = (await this.matchInvite
+      const matchInvites = (await this.matchInvite
         .findInvitesByMatch(activeMatchResult.match.id))
+      const opponentInvite = matchInvites
         .find(invite => invite.user_id !== ctx.user.id)
 
       if (!opponentInvite) throw new Error('Unable to find oppoent invite')
@@ -68,7 +56,7 @@ export class MatchRouter {
 
       return {
         match: activeMatchResult.match,
-        invite: activeMatchResult.activeInvite,
+        invites: matchInvites,
         opponent: {
           id: opponent.id,
           pubkey: opponent.pubkey

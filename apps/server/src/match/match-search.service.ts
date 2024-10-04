@@ -91,7 +91,7 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
     })
 
     // Create invites
-    const invites = await Promise.all(results.documents.map(async item => {
+    await Promise.all(results.documents.map(async item => {
       if (!item.value.pubkey) {
         throw new Error("Invalid pubkey")
       }
@@ -109,10 +109,6 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
     }));
 
     this.logger.log(`Match found, invites created`);
-
-    this.redisService.emit(AppEvents.MatchQueueInviteSent, {
-      invites
-    })
   }
 
   public async enterQueue(inputs: {
@@ -143,7 +139,6 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
     return {
       position: keys.length
     }
-    // this.logger.log(`User added to queue: ${inputs.requestedBy.toBase58()} at position ${index}`)
   }
 
   public async leaveQueue(inputs: {

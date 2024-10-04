@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useMatchMakingContext } from "./MatchMakingProvider";
-import { InfoItem, InfoItemSeperator } from "./InfoItem";
 import { MVPMatchInformation } from "./MatchInformation";
 
 export function JoinGameIdle() {
