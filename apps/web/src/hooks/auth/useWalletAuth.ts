@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 
 import { useWallet, WalletContextState } from '@solana/wallet-adapter-react'
@@ -9,6 +9,8 @@ import { trpc } from '@/app/trpc';
 import { assert } from '@/utils/assert';
 
 export function useWalletAuth() {
+  const [authenciated, setAuthenciated] = useState(false)
+
   const wallet = useWallet();
   const walletModal = useWalletModal();
 
@@ -40,6 +42,7 @@ export function useWalletAuth() {
           signer: wallet.publicKey!.toBase58()
         })
         localStorage.setItem('jwt', verified.token);
+        setAuthenciated(true)
       })
   }
 
@@ -53,6 +56,7 @@ export function useWalletAuth() {
   }, [debouncedWalletConnected, onAuthSignMessage])
 
   return {
+    authenciated,
     onDisconnect,
     onConnect,
     displayUsername,
