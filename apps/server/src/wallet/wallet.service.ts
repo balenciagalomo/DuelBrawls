@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, createTransferInstruction, getAssociatedTokenAddressSync, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   VersionedTransaction,
   TransactionMessage,
@@ -41,24 +41,37 @@ export class WalletService {
     uiAmount: number,
     payer: Signer
   }) {
-    const sourceATA = await getOrCreateAssociatedTokenAccount(
-      this.connection.connection,
-      inputs.payer,
+    // const sourceATA = await getOrCreateAssociatedTokenAccount(
+    //   this.connection.connection,
+    //   inputs.payer,
+    //   inputs.mint,
+    //   inputs.from,
+    //   false,
+    //   'finalized'
+    // );
+
+    // console.log('source ata', sourceATA.address)
+
+    const sourceATA = getAssociatedTokenAddressSync(
       inputs.mint,
       inputs.from
-    );
+    )
 
-    console.log('source ata', sourceATA.address)
-
-    const destinationATA = await getOrCreateAssociatedTokenAccount(
-      this.connection.connection,
-      inputs.payer,
+    const destinationATA = getAssociatedTokenAddressSync(
       inputs.mint,
       inputs.to
-    );
+    )
 
+    // const destinationATA = await createAssociatedTokenAccountIdempotentInstruction(
+    //   this.connection.connection,
+    //   inputs.payer,
+    //   inputs.mint,
+    //   inputs.to,
+    //   false,
+    //   'finalized'
+    // );
 
-    console.log('destination ata', destinationATA.address)
+    console.log('destination ata', destinationATA)
 
     const decimals = await this.getNumberDecimals(inputs.mint);
 
@@ -68,9 +81,21 @@ export class WalletService {
       payerKey: inputs.payer.publicKey,
       recentBlockhash: blockhash,
       instructions: [
+        createAssociatedTokenAccountIdempotentInstruction(
+          inputs.payer.publicKey,
+          sourceATA,
+          inputs.from,
+          inputs.mint,
+        ),
+        createAssociatedTokenAccountIdempotentInstruction(
+          inputs.payer.publicKey,
+          destinationATA,
+          inputs.to,
+          inputs.mint,
+        ),
         createTransferInstruction(
-          sourceATA.address,
-          destinationATA.address,
+          sourceATA,
+          destinationATA,
           inputs.from,
           inputs.uiAmount * Math.pow(10, decimals)
         )
@@ -94,7 +119,12 @@ export class WalletService {
     signer: Signer
   }) {
     inputs.tx.sign([inputs.signer])
-    const signature = await this.connection.connection.sendTransaction(inputs.tx);
+
+    this.connection.connection.simulateTransaction(inputs.tx).then(console.log)
+    const signature = await this.connection.connection.sendTransaction(inputs.tx, {
+      skipPreflight: true,
+    });
+    console.log('signature', signature)
     return await this.confirmTransaction(signature)
   }
 

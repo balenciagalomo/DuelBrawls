@@ -42,9 +42,9 @@ export class TreasuryRouter {
 )
       const tx = await this.wallet.splTransferTx({
         from: keypair.publicKey,
-        payer: keypair,
-        mint,
         to: ctx.user.walletKeypair.publicKey,
+        mint,
+        payer: keypair,
         uiAmount: 500
       })
 
