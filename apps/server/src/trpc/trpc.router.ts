@@ -28,18 +28,6 @@ export class TrpcRouter {
     auth: this.auth.router,
     profile: this.profile.router,
     match: this.match.router,
-    hello: this.trpc.procedure
-      .input(
-        z.object({
-          name: z.string().optional(),
-        }),
-      )
-      .query(({ input }) => {
-        const { name } = input;
-        return {
-          greeting: `Hello ${name ? name : `Bilbo`}`,
-        };
-      }),
   });
 
   async applyMiddleware(app: INestApplication) {

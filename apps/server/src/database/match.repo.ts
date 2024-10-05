@@ -9,12 +9,18 @@ export class MatchRepository {
   ) { }
 
   public async create(inputs: {
-    gameType: Database["public"]["Enums"]["game_type"]
+    gameType: Database["public"]["Enums"]["game_type"],
+    token: string;
+    individualWageAmount: number,
+    individualTradeAmount: number
   }) {
     const results = await this.database.supabase
       .from('matches')
       .insert({
-        game_type: inputs.gameType
+        game_type: inputs.gameType,
+        token: inputs.token,
+        individual_wage_amount: inputs.individualWageAmount,
+        individual_trade_amount: inputs.individualTradeAmount
       })
       .select()
       .single()

@@ -1,0 +1,1 @@
+create view public.match_participants_view as select id, user_id, match_id, invite_state from public.match_participants;

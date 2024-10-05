@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 
 import ExampleAvatar from '@/app/assets/images/example-avatar.png'
@@ -11,9 +11,15 @@ import { MVPMatchInformation } from '@/components/atoms/JoinGame/MatchInformatio
 import { shortenAddress } from '@/utils/strings';
 
 export function MatchFound() {
-  const { activeMatchQuery, onCancel, onDecline } = useMatchMakingContext()
+  const { activeMatchQuery, declineMatch, onCancel, onDecline } = useMatchMakingContext()
   const { publicKey } = useWallet()
 
+  const requiredDepositAmount = useMemo(() => {
+    const wage =activeMatchQuery.data?.match.individual_wage_amount ?? 0 
+    const trade =activeMatchQuery.data?.match.individual_trade_amount ?? 0
+    return wage + trade
+  }, [activeMatchQuery.data])
+  
   return (
     <div className="w-100% max-w-md flex flex-col flex-1 gap-y-4">
       <div className="rounded-md border border-trade-up p-6 flex flex-1 flex-col gap-y-4">
@@ -38,10 +44,11 @@ export function MatchFound() {
       <Button
         variant='up'
         onClick={onDecline}>
-        Deposit
+        Deposit ${requiredDepositAmount}
       </Button>
       <Button
         variant='ghost'
+        isLoading={declineMatch.isPending}
         onClick={onDecline}>
         Decline
       </Button>

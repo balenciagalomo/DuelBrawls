@@ -30,26 +30,26 @@ export class RedisService extends Redis implements OnModuleDestroy {
   }
 
   private handleConnect() {
-    this.logger.log('Redis connecting...', { type: 'REDIS_CONNECTING' });
+    this.logger.log('Redis connecting...');
   }
 
   private handleReady() {
-    this.logger.log('Redis connected!', { type: 'REDIS_CONNECTED' });
+    this.logger.log('Redis connected');
   }
 
   private handleClose() {
-    this.logger.warn('Redis disconnected!', { type: 'REDIS_DISCONNECTED' });
+    this.logger.warn('Redis disconnected');
   }
 
   private handleReconnecting() {
-    this.logger.log('Redis reconnecting!', { type: 'REDIS_RECONNECTING' });
+    this.logger.log('Redis reconnecting');
   }
 
   private handleEnd() {
-    this.logger.warn('Redis connection ended!', { type: 'REDIS_CONN_ENDED' });
+    this.logger.warn('Redis connection ended');
   }
 
   private handleError(err: any) {
-    this.logger.error('Redis error occurred', { type: 'REDIS_ERROR', err });
+    this.logger.error(`Redis error occurred' ${JSON.stringify({ err })}`);
   }
 }

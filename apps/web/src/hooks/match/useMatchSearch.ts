@@ -26,7 +26,7 @@ export function useMatchSearch() {
             {
               event: '*',
               schema: 'public',
-              table: 'match_invites',
+              table: 'match_participants',
               filter: `user_id=eq.${me.id}`
             },
             (payload) => {

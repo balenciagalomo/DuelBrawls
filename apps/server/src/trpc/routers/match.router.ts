@@ -10,7 +10,7 @@ import { UserRepository } from '../../database/user.repo';
 import { MatchSearchService } from '../../match/match-search.service';
 import { RedisService } from '../../database/redis.service';
 import { MatchRepository } from '../../database/match.repo';
-import { MatchInviteRepository } from '../../database/match-invite.repo';
+import { MatchParticipantRepository } from '../../database/match-participant.repo';
 import { MatchService } from '../../match/match.service';
 
 @Injectable()
@@ -21,18 +21,26 @@ export class MatchRouter {
     private readonly trpc: TrpcService,
     private readonly user: UserRepository,
     private readonly match: MatchRepository,
-    private readonly matchInvite: MatchInviteRepository,
+    private readonly matchParticipant: MatchParticipantRepository,
     private readonly matchSearch: MatchSearchService,
     private readonly matchService: MatchService,
     private readonly redis: RedisService
   ) { }
 
   public router = this.trpc.router({
+    defaultConfig: this.trpc.procedure.query(async () => {
+      const defaultGameConfig = await this.matchSearch.getDefaultGameConfig();
+      return defaultGameConfig
+    }),
     // TODO: Find a match for user, if existing match is on going, return an error
     enterQueue: this.trpc.protectedProcedure.mutation(async ({ ctx }) => {
+      const defaultGameConfig = await this.matchSearch.getDefaultGameConfig();
       const queueIndex = await this.matchSearch.enterQueue({
         pubkey: ctx.user.pubkey,
-        gameType: 'one_vs_one'
+        gameType: defaultGameConfig.game_type,
+        token: defaultGameConfig.token.id,
+        tradeAmount: defaultGameConfig.individual_trade_amount,
+        wageAmount: defaultGameConfig.individual_wage_amount
       })
       return {
         position: queueIndex
@@ -45,18 +53,19 @@ export class MatchRouter {
       const activeMatchResult = await this.matchService.findActiveMatchByUserId(ctx.user.id)
       if (!activeMatchResult?.match) return null
 
-      const matchInvites = (await this.matchInvite
-        .findInvitesByMatch(activeMatchResult.match.id))
-      const opponentInvite = matchInvites
+      const participants = await this.matchParticipant
+        .findParticipantsByMatch(activeMatchResult.match.id)
+      const opponentInvite = participants
         .find(invite => invite.user_id !== ctx.user.id)
 
       if (!opponentInvite) throw new Error('Unable to find oppoent invite')
-
+      if (!opponentInvite.user_id) throw new Error('Oppoenet user id can not be null')
+        
       const opponent = await this.user.findById(opponentInvite.user_id);
 
       return {
         match: activeMatchResult.match,
-        invites: matchInvites,
+        participants,
         opponent: {
           id: opponent.id,
           pubkey: opponent.pubkey
@@ -66,16 +75,16 @@ export class MatchRouter {
     declineMatch: this.trpc.protectedProcedure
       .input(
         z.object({
-          inviteId: z.string(),
+          participantId: z.string(),
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const matchInvite = await this.matchInvite.findInviteById(input.inviteId)
-        if (matchInvite.user_id !== ctx.user.id) {
+        const participant = await this.matchParticipant.findParticipantById(input.participantId)
+        if (participant.user_id !== ctx.user.id) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
-        await this.matchInvite.updateInviteState({
-          inviteId: matchInvite.id,
+        await this.matchParticipant.updateInviteState({
+          participantId: input.participantId,
           inviteState: 'decline'
         })
       }),
