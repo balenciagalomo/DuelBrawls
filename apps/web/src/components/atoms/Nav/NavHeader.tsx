@@ -10,7 +10,7 @@ import { MintUSDC } from '@/components/atoms/FakeUSDC/MintUSDC';
 
 export function NavHeader() {
   return (
-    <nav className="w-full py-4 px-4 flex flex-row items-center justify-between">
+    <nav className="w-full py-4 px-4 flex flex-row items-center justify-between sticky top-0 bg-background z-10">
       <Link href="/">
         <Image
           className="pl-2"
