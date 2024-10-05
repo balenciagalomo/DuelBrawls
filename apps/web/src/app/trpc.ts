@@ -1,7 +1,7 @@
 'use client';
 
 import { createTRPCProxyClient, httpBatchLink, loggerLink, splitLink, wsLink } from "@trpc/client";
-import type { AppRouter } from '@/../../server/exports'
+import type { AppRouter } from '@/../../server/src/exports'
 
 const getUrl = () => `${process.env.NEXT_PUBLIC_API_URL}/trpc`
 
