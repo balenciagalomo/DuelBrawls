@@ -1,12 +1,9 @@
+import { BASE_PRECISION, BN, BulkAccountLoader, DriftClient, getMarketOrderParams, initialize, PerpMarketConfig, PerpMarkets, PositionDirection, QUOTE_PRECISION, SpotMarketConfig, SpotMarkets, User, Wallet } from '@drift-labs/sdk';
 import { Injectable } from '@nestjs/common';
-import { MatchInviteState } from '../generated/enum.types';
 import { ConfigService } from '@nestjs/config';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { SecretMissingError } from 'src/config/error';
-import { BASE_PRECISION, BN, BulkAccountLoader, convertToNumber, DriftClient, getMarketOrderParams, initialize, PerpMarketConfig, PerpMarkets, PositionDirection, PRICE_PRECISION, QUOTE_PRECISION, SpotMarketConfig, SpotMarkets, User, Wallet } from '@drift-labs/sdk';
-import { Keypair } from '@solana/web3.js';
-import bs58 from "bs58"
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { SecretMissingError } from '../config/error';
 
 @Injectable()
 export class DriftTradingService {
