@@ -110,6 +110,24 @@ export class MatchRouter {
     // TODO: Creat temp wallet by provide deposit
     join: this.trpc.protectedProcedure.query(({ ctx }) => ({
 
-    }))
+    })),
+    trade: this.trpc.protectedProcedure
+    .input(
+      z.object({
+        participantId: z.string(),
+        amount: z.number(),
+        direction: z.enum(["long", "short"])
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const participant = await this.matchParticipant.findParticipantById(input.participantId)
+      if (participant.user_id !== ctx.user.id || !participant.match_id) {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+      const match = await this.match.findOneById(participant.match_id)
+      if (match.status !== "active") {
+        throw new TRPCError({ code: 'UNAUTHORIZED' })
+      }
+    }),
   });
 }
