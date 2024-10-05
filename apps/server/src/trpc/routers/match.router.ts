@@ -12,6 +12,8 @@ import { RedisService } from '../../database/redis.service';
 import { MatchRepository } from '../../database/match.repo';
 import { MatchParticipantRepository } from '../../database/match-participant.repo';
 import { MatchService } from '../../match/match.service';
+import { DriftTradingService } from '../../trading/drift.service';
+import { WalletService } from '../../wallet/wallet.service';
 
 @Injectable()
 export class MatchRouter {
@@ -24,7 +26,9 @@ export class MatchRouter {
     private readonly matchParticipant: MatchParticipantRepository,
     private readonly matchSearch: MatchSearchService,
     private readonly matchService: MatchService,
-    private readonly redis: RedisService
+    private readonly redis: RedisService,
+    private readonly drift: DriftTradingService,
+    private readonly wallet: WalletService
   ) { }
 
   public router = this.trpc.router({
@@ -110,6 +114,58 @@ export class MatchRouter {
     // TODO: Creat temp wallet by provide deposit
     join: this.trpc.protectedProcedure.query(({ ctx }) => ({
 
-    }))
+    })),
+    trade: this.trpc.protectedProcedure
+      .input(
+        z.object({
+          participantId: z.string(),
+          amount: z.number(),
+          direction: z.enum(["long", "short"])
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const participant = await this.matchParticipant.findWalletByParticipantId(input.participantId)
+        if (participant.user_id !== ctx.user.id || !participant.match_id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        const match = await this.match.findOneById(participant.match_id)
+        if (match.status !== "active") {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        await this.drift.placeOrder(
+          this.wallet.keypairFromPrivateKey(participant.game_wallet_private_key),
+          input.direction === "long" ? input.amount : -input.amount
+        )
+      }),
+    balance: this.trpc.protectedProcedure
+      .input(
+        z.object({
+          participantId: z.string()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const participant = await this.matchParticipant.findWalletByParticipantId(input.participantId)
+        if (participant.user_id !== ctx.user.id || !participant.match_id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        return await this.drift.getUserUSDBalance(
+          this.wallet.keypairFromPrivateKey(participant.game_wallet_private_key)
+        )
+      }),
+    position: this.trpc.protectedProcedure
+      .input(
+        z.object({
+          participantId: z.string()
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const participant = await this.matchParticipant.findWalletByParticipantId(input.participantId)
+        if (participant.user_id !== ctx.user.id || !participant.match_id) {
+          throw new TRPCError({ code: 'UNAUTHORIZED' })
+        }
+        return await this.drift.getUserPosition(
+          this.wallet.keypairFromPrivateKey(participant.game_wallet_private_key)
+        )
+      }),
   });
 }

@@ -1,12 +1,9 @@
+import { BASE_PRECISION, BN, BulkAccountLoader, DriftClient, getMarketOrderParams, initialize, PerpMarketConfig, PerpMarkets, PositionDirection, QUOTE_PRECISION, SpotMarketConfig, SpotMarkets, User, Wallet } from '@drift-labs/sdk';
 import { Injectable } from '@nestjs/common';
-import { MatchInviteState } from '../generated/enum.types';
 import { ConfigService } from '@nestjs/config';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { SecretMissingError } from 'src/config/error';
-import { BASE_PRECISION, BN, BulkAccountLoader, convertToNumber, DriftClient, getMarketOrderParams, initialize, PerpMarketConfig, PerpMarkets, PositionDirection, PRICE_PRECISION, QUOTE_PRECISION, SpotMarketConfig, SpotMarkets, User, Wallet } from '@drift-labs/sdk';
-import { Keypair } from '@solana/web3.js';
-import bs58 from "bs58"
 import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { Connection, Keypair, PublicKey } from '@solana/web3.js';
+import { SecretMissingError } from '../config/error';
 
 @Injectable()
 export class DriftTradingService {
@@ -39,10 +36,10 @@ export class DriftTradingService {
         this.usdcMarket = usdcMarket
     }
 
-    private async withDriftClient<T, ReturnT> (privateKey: string, args: T[], executable: (driftClient: DriftClient, ...args: T[]) => Promise<ReturnT>) {
+    private async withDriftClient<T, ReturnT> (keypair: Keypair, args: T[], executable: (driftClient: DriftClient, ...args: T[]) => Promise<ReturnT>) {
         const driftClient = new DriftClient({
             connection: this.connection,
-            wallet: new Wallet(Keypair.fromSecretKey(bs58.decode(privateKey))),
+            wallet: new Wallet(keypair),
             programID: new PublicKey(this.driftConfig.DRIFT_PROGRAM_ID),
             accountSubscription: {
                 type: 'polling',
@@ -55,9 +52,9 @@ export class DriftTradingService {
         return result
     }
 
-    private async withUserClient<T, ReturnT> (privateKey: string, args: T[], executable: (driftClient: DriftClient, userClient: User, ...args: T[]) => Promise<ReturnT>) {
+    private async withUserClient<T, ReturnT> (keypair: Keypair, args: T[], executable: (driftClient: DriftClient, userClient: User, ...args: T[]) => Promise<ReturnT>) {
         return this.withDriftClient(
-            privateKey,
+            keypair,
             [],
             async (driftClient) => {
                 const userAccountPublicKey = await driftClient.getUserAccountPublicKey()
@@ -77,9 +74,9 @@ export class DriftTradingService {
         )
     }
 
-    public async initializeUser (privateKey: string, amount: number) {
+    public async initializeUser (keypair: Keypair, amount: number) {
         return this.withDriftClient(
-            privateKey,
+            keypair,
             [amount],
             async (driftClient, amount) => {
                 const depositAmount = new BN(amount).mul(QUOTE_PRECISION)
@@ -92,9 +89,9 @@ export class DriftTradingService {
         )
     }
 
-    public async placeOrder (privateKey: string, amount: number) {
+    public async placeOrder (keypair: Keypair, amount: number) {
         return this.withDriftClient(
-            privateKey,
+            keypair,
             [],
             async (driftClient) => {
                 const marketAccount = driftClient.getPerpMarketAccount(this.market.marketIndex)
@@ -111,9 +108,9 @@ export class DriftTradingService {
         )
     }
 
-    public async settlePNL (privateKey: string) {
+    public async settlePNL (keypair: Keypair) {
         return this.withUserClient(
-            privateKey,
+            keypair,
             [],
             async (driftClient, userClient) => {
                 const account = userClient.getUserAccount()
@@ -123,9 +120,9 @@ export class DriftTradingService {
         )
     }
 
-    public async settleFundingPayment (privateKey: string) {
+    public async settleFundingPayment (keypair: Keypair) {
         return this.withUserClient(
-            privateKey,
+            keypair,
             [],
             async (driftClient, userClient) => {
                 const signature = await driftClient.settleFundingPayment(userClient.userAccountPublicKey)
@@ -134,9 +131,9 @@ export class DriftTradingService {
         )
     }
 
-    public async withdrawBalance (privateKey: string, amount: BN) {
+    public async withdrawBalance (keypair: Keypair, amount: BN) {
         return this.withDriftClient(
-            privateKey,
+            keypair,
             [],
             async (driftClient) => {
                 const signature = await driftClient.withdraw(
@@ -149,9 +146,9 @@ export class DriftTradingService {
         )
     }
 
-    public async getUserPosition (privateKey: string) {
+    public async getUserPosition (keypair: Keypair) {
         return this.withUserClient(
-            privateKey,
+            keypair,
             [],
             async (driftClient, userClient) => {
                 const position = userClient.getPerpPosition(this.market.marketIndex)
@@ -160,16 +157,16 @@ export class DriftTradingService {
                 const currentValue = userClient.getPerpPositionValue(this.market.marketIndex, priceData)
         
                 return {
-                    position,
+                    amount: position.baseAssetAmount,
                     currentValue
                 }
             }
         )
     }
 
-    public async getUserUSDBalance (privateKey: string) {
+    public async getUserUSDBalance (keypair: Keypair) {
         return this.withUserClient(
-            privateKey,
+            keypair,
             [],
             async (_, userClient) => {
                 const balance = userClient.getTotalCollateral()
