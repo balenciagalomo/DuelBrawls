@@ -219,7 +219,7 @@ export type Database = {
     }
     Enums: {
       game_type: "one_vs_one"
-      match_invite_state: "sent" | "expire" | "accepted" | "decline"
+      match_invite_state: "pending" | "expire" | "accepted" | "decline"
       match_status_state: "pending" | "active" | "finished" | "resolved"
     }
     CompositeTypes: {
