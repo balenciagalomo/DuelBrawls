@@ -9,4 +9,8 @@ export class WalletService {
   public generatePrivateKey() {
     return bs58.encode(Keypair.generate().secretKey)
   }
+
+  public keypairFromPrivateKey(input: string) {
+    return Keypair.fromSecretKey(bs58.decode(input))
+  }
 }

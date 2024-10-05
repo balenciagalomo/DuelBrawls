@@ -160,7 +160,7 @@ export class DriftTradingService {
                 const currentValue = userClient.getPerpPositionValue(this.market.marketIndex, priceData)
         
                 return {
-                    position,
+                    amount: position.baseAssetAmount,
                     currentValue
                 }
             }
