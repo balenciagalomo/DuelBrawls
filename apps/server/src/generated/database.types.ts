@@ -91,6 +91,27 @@ export type Database = {
         }
         Relationships: []
       }
+      price_feed: {
+        Row: {
+          id: string
+          price: number
+          symbol: string
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          price: number
+          symbol: string
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          price?: number
+          symbol?: string
+          timestamp?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string
