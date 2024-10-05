@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MatchParticipantRepository } from '../database/match-participant.repo';
 import { MatchRepository } from '../database/match.repo';
-import { MatchInviteState } from '../generated/enum.types';
+import { ACTIVE_MATCH_INVITE_STATE } from '../generated/enum.types';
 
 @Injectable()
 export class MatchService {
@@ -12,11 +12,10 @@ export class MatchService {
 
   public async findActiveMatchByUserId(userId: string) {
     const participants = await this.matchParticipant.findByUserId({ userId })
-    const activeInviteStates: MatchInviteState[] = ['sent', 'accepted'];
     const activeInvite = participants
       .filter(item => {
         if (!item.invite_state) throw new Error('Participants invite state can not be null')
-        return activeInviteStates.includes(item.invite_state)
+        return ACTIVE_MATCH_INVITE_STATE.includes(item.invite_state)
       })
       .at(0)
 
