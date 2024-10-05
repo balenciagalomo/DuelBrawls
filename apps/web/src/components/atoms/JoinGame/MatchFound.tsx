@@ -11,7 +11,7 @@ import { MVPMatchInformation } from '@/components/atoms/JoinGame/MatchInformatio
 import { shortenAddress } from '@/utils/strings';
 
 export function MatchFound() {
-  const { activeMatchQuery, declineMatch, onCancel, onDecline } = useMatchMakingContext()
+  const { activeMatchQuery, declineMatch, acceptMatch, onCancel, onDecline, onAccept } = useMatchMakingContext()
   const { publicKey } = useWallet()
 
   const requiredDepositAmount = useMemo(() => {
@@ -43,7 +43,9 @@ export function MatchFound() {
       </button>
       <Button
         variant='up'
-        onClick={onDecline}>
+        isLoading={acceptMatch.isPending}
+        disabled={acceptMatch.isPending}
+        onClick={onAccept}>
         Deposit ${requiredDepositAmount}
       </Button>
       <Button

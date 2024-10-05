@@ -18,6 +18,11 @@ export default () => ({
     rpc: process.env.SOLANA_RPC_URL
   },
   game: {
-    defaultTokenName: process.env.GAME_CONFIG_DEFAULT_TOKEN_NAME || 'USDC'
+    defaultTokenName: process.env.GAME_CONFIG_DEFAULT_TOKEN_NAME || 'USDC',
+    defaultWageAmount: 50,
+    defaultTradeAmount: 150,
+    // Devnet only
+    usdcTreasury: process.env.GAME_CONFIG_USDC_TREASURY_PRIVATE_KEY || 'PRIVATE_KEY',
+    usdcTreasuryMint: process.env.GAME_CONFIG_USDC_TREASURY_MINT || 'MINT'
   }
 });

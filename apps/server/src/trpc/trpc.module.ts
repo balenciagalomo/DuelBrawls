@@ -7,10 +7,12 @@ import { AuthRouter } from './routers/auth.router';
 import { ProfileRouter } from './routers/profile.router';
 import { MatchRouter } from './routers/match.router';
 import { MatchModule } from '../match/match.module';
+import { TreasuryRouter } from './routers/treasury.router';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
-  imports: [AuthModule, DatabaseModule, MatchModule],
+  imports: [AuthModule, DatabaseModule, MatchModule, WalletModule],
   controllers: [],
-  providers: [TrpcService, TrpcRouter, AuthRouter, ProfileRouter, MatchRouter],
+  providers: [TrpcService, TrpcRouter, AuthRouter, ProfileRouter, MatchRouter, TreasuryRouter],
 })
 export class TrpcModule { }
