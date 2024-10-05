@@ -121,9 +121,7 @@ export class WalletService {
     inputs.tx.sign([inputs.signer])
 
     this.connection.connection.simulateTransaction(inputs.tx).then(console.log)
-    const signature = await this.connection.connection.sendTransaction(inputs.tx, {
-      skipPreflight: true,
-    });
+    const signature = await this.connection.connection.sendTransaction(inputs.tx);
     console.log('signature', signature)
     return await this.confirmTransaction(signature)
   }
