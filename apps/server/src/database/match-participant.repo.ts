@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
 import { Database } from '../generated/database.types';
+import { MatchInviteState } from '../generated/enum.types';
 import { DatabaseService } from './database.service';
 import { UserRepository } from './user.repo';
 import { WalletService } from '../wallet/wallet.service';
@@ -54,6 +55,20 @@ export class MatchParticipantRepository {
     return results.data
   }
 
+  public async findParticipant(inputs: {
+    matchId: string;
+    userId: string
+  }) {
+    const results = await this.database.supabase
+      .from('match_participants_view')
+      .select()
+      .eq('match_id', inputs.matchId)
+      .eq('user_id', inputs.userId)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
+
   public async findParticipantById(participantId: string) {
     const results = await this.database.supabase
       .from('match_participants_view')
@@ -76,7 +91,7 @@ export class MatchParticipantRepository {
 
   public async updateInviteState(inputs: {
     participantId: string;
-    inviteState: Database["public"]["Enums"]["match_invite_state"]
+    inviteState: MatchInviteState
   }) {
     const results = await this.database.supabase
       .from('match_participants')

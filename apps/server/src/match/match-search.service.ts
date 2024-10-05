@@ -20,17 +20,6 @@ type GameConfig = Pick<
   token: SupportToken
 }
 
-export const DEFAULT_GAME_CONFIG: Pick<
-  Match,
-  'game_type' |
-  'individual_wage_amount' |
-  'individual_trade_amount'
-> = {
-  game_type: 'one_vs_one',
-  individual_wage_amount: 50,
-  individual_trade_amount: 150
-}
-
 class MatchNotExistsError extends Error {
   public message = 'Match does not exists'
 }
@@ -58,13 +47,17 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
 
   public async getDefaultGameConfig(): Promise<GameConfig> {
     const defaultTokenName = this.config.get<string>('game.defaultTokenName');
+    const defaultWageAmount = this.config.get<number>('game.defaultWageAmount');
+    const defaultTradeAmount = this.config.get<number>('game.defaultTradeAmount');
     if (!defaultTokenName) throw new SecretMissingError('game.defaultTokenName')
+    if (!defaultWageAmount) throw new SecretMissingError('game.defaultWageAmount')
+    if (!defaultTradeAmount) throw new SecretMissingError('game.defaultTradeAmount')
     const usdc = await this.supportToken.findOneByName(defaultTokenName);
     return {
       game_type: 'one_vs_one',
       token: usdc,
-      individual_wage_amount: 50,
-      individual_trade_amount: 150,
+      individual_wage_amount: defaultWageAmount,
+      individual_trade_amount: defaultTradeAmount,
     }
   }
 

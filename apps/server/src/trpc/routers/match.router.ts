@@ -64,7 +64,7 @@ export class MatchRouter {
 
       if (!opponentInvite) throw new Error('Unable to find oppoent invite')
       if (!opponentInvite.user_id) throw new Error('Oppoenet user id can not be null')
-        
+
       const opponent = await this.user.findById(opponentInvite.user_id);
 
       return {
@@ -92,29 +92,14 @@ export class MatchRouter {
           inviteState: 'decline'
         })
       }),
-    randomNumber: this.trpc.procedure.subscription(() => {
-      return observable<{
-        randomNumber: number,
-        counter: number
-      }>((emit) => {
-        let counter = 0
-        const timer = setInterval(() => {
-          // emits a number every second
-          emit.next({
-            randomNumber: Math.floor(Math.random() * 100),
-            counter
-          });
-          counter++;
-        }, 200);
-        return () => {
-          clearInterval(timer);
-        };
-      });
+    join: this.trpc.protectedProcedure.input(z.object({
+      matchId: z.string(),
+    })).mutation(async ({ ctx, input }) => {
+      return await this.matchService.deposit({
+        matchId: input.matchId,
+        userId: ctx.user.id
+      })
     }),
-    // TODO: Creat temp wallet by provide deposit
-    join: this.trpc.protectedProcedure.query(({ ctx }) => ({
-
-    })),
     trade: this.trpc.protectedProcedure
       .input(
         z.object({

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { Database } from '../generated/database.types';
+import { MatchStatusState } from '../generated/enum.types';
 
 @Injectable()
 export class MatchRepository {
@@ -33,6 +34,22 @@ export class MatchRepository {
       .from('matches')
       .select()
       .eq('id', matchId)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
+
+  public async updateMatchState(inputs: {
+    matchId: string;
+    matchState: MatchStatusState
+  }) {
+    const results = await this.database.supabase
+      .from('matches')
+      .update({
+        status: inputs.matchState
+      })
+      .eq('id', inputs.matchId)
+      .select()
       .single()
     if (results.error) throw results.error;
     return results.data

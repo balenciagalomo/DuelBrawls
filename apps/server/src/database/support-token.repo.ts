@@ -16,4 +16,14 @@ export class SupportTokenRepository {
     if (results.error) throw results.error;
     return results.data
   }
+
+  public async findOneById(id: string) {
+    const results = await this.database.supabase
+      .from('support_tokens')
+      .select()
+      .eq('id', id)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
 }
