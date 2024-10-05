@@ -23,7 +23,8 @@ export class ProfileRouter {
     }),
     me: this.trpc.protectedProcedure.query(({ ctx }) => ({
       id: ctx.user.id,
-      pubkey: ctx.user.pubkey.toBase58()
+      pubkey: ctx.user.pubkey.toBase58(),
+      wallet_address: ctx.user.walletKeypair.publicKey.toBase58()
     }))
   });
 }

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
 import { DatabaseService } from './database.service';
+import { Keypair } from '@solana/web3.js';
+import bs58 from 'bs58'
 
 @Injectable()
 export class UserRepository {
@@ -12,7 +14,8 @@ export class UserRepository {
     const results = await this.database.supabase
       .from('users')
       .insert({
-        pubkey: inputs.pubkey.toBase58()
+        pubkey: inputs.pubkey.toBase58(),
+        wallet_private_key: bs58.encode(Keypair.generate().secretKey)
       })
       .select()
       .single()

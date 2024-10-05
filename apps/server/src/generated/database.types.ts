@@ -96,16 +96,19 @@ export type Database = {
           created_at: string
           id: string
           pubkey: string
+          wallet_private_key: string
         }
         Insert: {
           created_at?: string
           id?: string
           pubkey: string
+          wallet_private_key: string
         }
         Update: {
           created_at?: string
           id?: string
           pubkey?: string
+          wallet_private_key?: string
         }
         Relationships: []
       }
