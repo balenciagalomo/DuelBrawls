@@ -12,8 +12,8 @@ import { RedisService } from '../../database/redis.service';
 import { MatchRepository } from '../../database/match.repo';
 import { MatchParticipantRepository } from '../../database/match-participant.repo';
 import { MatchService } from '../../match/match.service';
-import { DriftTradingService } from 'src/trading/drift.service';
-import { WalletService } from 'src/wallet/wallet.service';
+import { DriftTradingService } from '../../trading/drift.service';
+import { WalletService } from '../../wallet/wallet.service';
 
 @Injectable()
 export class MatchRouter {
