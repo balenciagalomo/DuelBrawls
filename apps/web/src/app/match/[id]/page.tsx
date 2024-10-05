@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TradingChart } from "@/components/atoms/Charts/TradingChart";
 import { MatchResultDialog } from "@/components/atoms/MatchResultDialog/MatchResultDialog";
 
-export default async function Game() {
+
+export default async function Match({ params }: { params: { id: string } }) {
+  console.log('params', params)
   return (
     <div className="flex flex-1 flex-col justify-start items-start mt-2 gap-4 w-full">
       <TickersBar />

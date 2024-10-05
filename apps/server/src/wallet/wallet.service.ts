@@ -41,17 +41,6 @@ export class WalletService {
     uiAmount: number,
     payer: Signer
   }) {
-    // const sourceATA = await getOrCreateAssociatedTokenAccount(
-    //   this.connection.connection,
-    //   inputs.payer,
-    //   inputs.mint,
-    //   inputs.from,
-    //   false,
-    //   'finalized'
-    // );
-
-    // console.log('source ata', sourceATA.address)
-
     const sourceATA = getAssociatedTokenAddressSync(
       inputs.mint,
       inputs.from
@@ -61,17 +50,6 @@ export class WalletService {
       inputs.mint,
       inputs.to
     )
-
-    // const destinationATA = await createAssociatedTokenAccountIdempotentInstruction(
-    //   this.connection.connection,
-    //   inputs.payer,
-    //   inputs.mint,
-    //   inputs.to,
-    //   false,
-    //   'finalized'
-    // );
-
-    console.log('destination ata', destinationATA)
 
     const decimals = await this.getNumberDecimals(inputs.mint);
 
@@ -116,13 +94,10 @@ export class WalletService {
 
   public async execute(inputs: {
     tx: VersionedTransaction,
-    signer: Signer
+    signers: Signer[]
   }) {
-    inputs.tx.sign([inputs.signer])
-
-    this.connection.connection.simulateTransaction(inputs.tx).then(console.log)
+    inputs.tx.sign(inputs.signers)
     const signature = await this.connection.connection.sendTransaction(inputs.tx);
-    console.log('signature', signature)
     return await this.confirmTransaction(signature)
   }
 

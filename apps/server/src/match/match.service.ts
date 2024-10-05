@@ -7,10 +7,15 @@ import { WalletService } from '../wallet/wallet.service';
 import { UserRepository } from '../database/user.repo';
 import { SupportTokenRepository } from '../database/support-token.repo';
 import { MatchParticipant, User } from '../generated/tables.types';
+import { ConfigService } from '@nestjs/config';
+import { SecretMissingError } from '../config/error';
+import bs58 from 'bs58';
+import { Keypair } from '@solana/web3.js';
 
 @Injectable()
 export class MatchService {
   constructor(
+    private readonly config: ConfigService,
     private readonly user: UserRepository,
     private readonly match: MatchRepository,
     private readonly matchParticipant: MatchParticipantRepository,
@@ -91,23 +96,20 @@ export class MatchService {
     const token = await this.supportToken.findOneById(inputs.match.token)
     const depositAmount = inputs.match.individual_wage_amount + inputs.match.individual_trade_amount
 
-    console.log('execute deposit', {
-      user: inputs.user.pubkey,
-      userSigner: userSigner.publicKey,
-      participantSigner: participantSigner.publicKey,
-      token,
-      depositAmount
-    });
+    const privateKeyString = this.config.get<string>('game.usdcTreasury')
+    if (!privateKeyString) throw new SecretMissingError('game.usdcTreasury')
+
+    const keypair = Keypair.fromSecretKey(bs58.decode(privateKeyString))
 
     const tx = await this.wallet.splTransferTx({
       from: userSigner.publicKey,
       to: participantSigner.publicKey,
       mint: new PublicKey(token.token_pubkey),
-      payer: userSigner,
+      payer: keypair,
       uiAmount: depositAmount
     })
 
-    const { signature, status } = await this.wallet.execute({ tx, signer: userSigner })
+    const { signature, status } = await this.wallet.execute({ tx, signers: [userSigner, keypair] })
 
     if (status.err) {
       throw new Error(status.err.toString())

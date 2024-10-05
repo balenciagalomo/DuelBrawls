@@ -48,7 +48,7 @@ export class TreasuryRouter {
         uiAmount: 500
       })
 
-      return await this.wallet.execute({ tx, signer: keypair })
+      return await this.wallet.execute({ tx, signers: [keypair] })
     })
   });
 }
