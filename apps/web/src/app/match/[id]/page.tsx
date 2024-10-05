@@ -2,7 +2,7 @@ import { TickersBar } from "@/components/atoms/TickersBar/TickersBar";
 import { TradeBox } from "@/components/atoms/TradeBox/TradeBox";
 import { ProfitAndLossChart } from "@/components/atoms/Charts/ProfitAndLossChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TradingChart } from "@/components/atoms/Charts/TradingChart";
+import { BonkDemoChart } from "@/components/atoms/Charts/BonkDemoChart";
 import { MatchResultDialog } from "@/components/atoms/MatchResultDialog/MatchResultDialog";
 
 
@@ -18,7 +18,7 @@ export default async function Match({ params }: { params: { id: string } }) {
           </CardHeader>
           <CardContent className="flex-grow p-0">
             <div className="w-full h-full">
-              <TradingChart />
+              <BonkDemoChart />
             </div>
           </CardContent>
         </Card>

@@ -34,6 +34,10 @@ export class WalletService {
     return Keypair.fromSecretKey(bs58.decode(participant.game_wallet_private_key))
   }
 
+  public keypairFromPrivateKey(input: string) {
+    return Keypair.fromSecretKey(bs58.decode(input))
+  }
+
   public async splTransferTx(inputs: {
     from: PublicKey;
     to: PublicKey;

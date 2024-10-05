@@ -1,0 +1,25 @@
+{
+  "name": "match-balances-feed-worker",
+  "version": "0.0.1",
+  "description": "Worker listening to price feeds and submitting them to db",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node .",
+    "dev": "nodemon src/index.ts --wat"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@drift-labs/sdk": "^2.96.0-beta.14",
+    "@solana/web3.js": "^1.95.3",
+    "@supabase/supabase-js": "^2.45.4",
+    "bs58": "^6.0.0",
+    "cron": "^3.1.7"
+  }
+}
