@@ -5,11 +5,14 @@ import { CreateExpressContextOptions } from '@trpc/server/adapters/express';
 
 import { JwtService } from '../auth/jwt.service';
 import { UserRepository } from '../database/user.repo';
+import { Keypair } from '@solana/web3.js';
+import bs58 from 'bs58';
 
 export interface TrpcContext {
   user?: {
     id: string;
     pubkey: PublicKey;
+    walletKeypair: Keypair;
   };
 }
 
@@ -44,7 +47,8 @@ export class TrpcService {
       return {
         user: {
           id: user.id,
-          pubkey: new PublicKey(user.pubkey)
+          pubkey: new PublicKey(user.pubkey),
+          walletKeypair: Keypair.fromSecretKey(bs58.decode(user.wallet_private_key))
         }
       }
     } catch {
