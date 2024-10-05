@@ -57,8 +57,8 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
   }
 
   public async getDefaultGameConfig(): Promise<GameConfig> {
-    const defaultTokenName = this.config.get<string>('game.dafultTokenName');
-    if (!defaultTokenName) throw new SecretMissingError('game.dafultTokenName')
+    const defaultTokenName = this.config.get<string>('game.defaultTokenName');
+    if (!defaultTokenName) throw new SecretMissingError('game.defaultTokenName')
     const usdc = await this.supportToken.findOneByName(defaultTokenName);
     return {
       game_type: 'one_vs_one',
