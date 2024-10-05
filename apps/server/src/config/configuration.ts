@@ -16,5 +16,8 @@ export default () => ({
   },
   solana: {
     rpc: process.env.SOLANA_RPC_URL
+  },
+  game: {
+    defaultTokenName: process.env.GAME_CONFIG_DEFAULT_TOKEN_NAME || 'USDC'
   }
 });

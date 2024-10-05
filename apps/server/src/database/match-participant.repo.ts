@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
+import { Database } from '../generated/database.types';
 import { DatabaseService } from './database.service';
 import { UserRepository } from './user.repo';
-import { Database } from '../generated/database.types';
-import { MatchInviteState } from '../generated/enum.types';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
-export class MatchInviteRepository {
+export class MatchParticipantRepository {
   constructor(
     private readonly database: DatabaseService,
+    private readonly wallet: WalletService,
     private readonly user: UserRepository
   ) { }
 
@@ -19,11 +20,12 @@ export class MatchInviteRepository {
     const user = await this.user.findByPubkey(inputs.pubkey);
 
     const results = await this.database.supabase
-      .from('match_invites')
+      .from('match_participants')
       .insert({
+        match_id: inputs.matchId,
         user_id: user.id,
-        invite_state: 'sent',
-        match_id: inputs.matchId
+        invite_state: 'pending',
+        game_wallet_private_key: this.wallet.generatePrivateKey(),
       })
       .select()
       .single()
@@ -32,46 +34,56 @@ export class MatchInviteRepository {
     return results.data
   }
 
-  public async findUserInvites(inputs: {
+  public async findByUserId(inputs: {
     userId: string
   }) {
     const results = await this.database.supabase
-      .from('match_invites')
+      .from('match_participants_view')
       .select()
       .eq('user_id', inputs.userId)
     if (results.error) throw results.error;
     return results.data
   }
 
-  public async findInvitesByMatch(matchId: string) {
+  public async findParticipantsByMatch(matchId: string) {
     const results = await this.database.supabase
-      .from('match_invites')
+      .from('match_participants_view')
       .select()
       .eq('match_id', matchId)
     if (results.error) throw results.error;
     return results.data
   }
 
-  public async findInviteById(inviteId: string) {
+  public async findParticipantById(participantId: string) {
     const results = await this.database.supabase
-      .from('match_invites')
+      .from('match_participants_view')
       .select()
-      .eq('id', inviteId)
+      .eq('id', participantId)
+      .single()
+    if (results.error) throw results.error;
+    return results.data
+  }
+  
+  public async findWalletByParticipantId(participantId: string) {
+    const results = await this.database.supabase
+      .from('match_participants')
+      .select()
+      .eq('id', participantId)
       .single()
     if (results.error) throw results.error;
     return results.data
   }
 
   public async updateInviteState(inputs: {
-    inviteId: string;
+    participantId: string;
     inviteState: Database["public"]["Enums"]["match_invite_state"]
   }) {
     const results = await this.database.supabase
-      .from('match_invites')
+      .from('match_participants')
       .update({
         invite_state: inputs.inviteState
       })
-      .eq('id', inputs.inviteId)
+      .eq('id', inputs.participantId)
       .select()
       .single()
 

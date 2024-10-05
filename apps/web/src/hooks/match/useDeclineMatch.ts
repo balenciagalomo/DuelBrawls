@@ -5,8 +5,8 @@ import { useActiveMatch } from "./useActiveMatch";
 export function useDeclineMatch() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (inviteId: string) => trpc.match.declineMatch.mutate({
-      inviteId
+    mutationFn: (id: string) => trpc.match.declineMatch.mutate({
+      participantId: id
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({

@@ -7,10 +7,13 @@ import { useActiveMatch } from '@/hooks/match/useActiveMatch';
 import { assert } from '@/utils/assert';
 import { useDeclineMatch } from '@/hooks/match/useDeclineMatch';
 import { useMe } from '@/hooks/auth/useMe';
+import { useDebounce } from '@uidotdev/usehooks';
 
 type MatchMakingContextProps = {
   matchSearch: ReturnType<typeof useMatchSearch>
   activeMatchQuery: ReturnType<typeof useActiveMatch>
+  declineMatch:  ReturnType<typeof useMatchSearchCancel>
+  debouncedIsSearching: boolean;
   onJoin: () => Promise<void>
   onCancel: () => Promise<void>;
   onDecline: () => Promise<void>
@@ -36,6 +39,8 @@ export function MatchMakingProvider(props: PropsWithChildren<MatchMakingProvider
   const activeMatchQuery = useActiveMatch()
   const declineMatch = useDeclineMatch()
 
+  const debouncedIsSearching = useDebounce(matchSearch.isPending, 300);
+
   const onJoin = () => matchSearch.mutateAsync()
   const onCancel = async () => {
     await matchSearchCancel.mutateAsync()
@@ -43,15 +48,17 @@ export function MatchMakingProvider(props: PropsWithChildren<MatchMakingProvider
   }
 
   const onDecline = async () => {
-    const invite = activeMatchQuery.data?.invites.find(item => item.user_id === meQuery.data?.id)
-    assert(invite, new Error('No active match'))
-    await declineMatch.mutateAsync(invite.id)
+    const participant = activeMatchQuery.data?.participants.find(item => item.user_id === meQuery.data?.id)
+    assert(participant?.id, new Error('No active match'))
+    await declineMatch.mutateAsync(participant.id)
   }
 
   return (
     <MatchMakingContext.Provider value={{
       matchSearch,
       activeMatchQuery,
+      declineMatch: matchSearchCancel,
+      debouncedIsSearching,
       onJoin,
       onCancel,
       onDecline

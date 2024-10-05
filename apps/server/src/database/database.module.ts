@@ -2,24 +2,28 @@ import { Module } from '@nestjs/common';
 import { DatabaseService } from './database.service';
 import { UserRepository } from './user.repo';
 import { RedisService } from './redis.service';
-import { MatchInviteRepository } from './match-invite.repo';
+import { MatchParticipantRepository } from './match-participant.repo';
 import { MatchRepository } from './match.repo';
+import { SupportTokenRepository } from './support-token.repo';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
-  imports: [],
+  imports: [WalletModule],
   controllers: [],
   providers: [
     DatabaseService,
     RedisService,
     UserRepository,
-    MatchInviteRepository,
-    MatchRepository
+    MatchParticipantRepository,
+    MatchRepository,
+    SupportTokenRepository
   ],
   exports: [
     RedisService,
     UserRepository,
-    MatchInviteRepository,
-    MatchRepository
+    MatchParticipantRepository,
+    MatchRepository,
+    SupportTokenRepository
   ]
 })
 export class DatabaseModule { }

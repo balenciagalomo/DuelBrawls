@@ -1,5 +1,5 @@
 create type match_invite_state as enum (
-  'sent',
+  'pending',
   'expire',
   'accepted',
   'decline'

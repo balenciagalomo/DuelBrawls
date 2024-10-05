@@ -34,23 +34,23 @@ export type Database = {
   }
   public: {
     Tables: {
-      match_invites: {
+      match_participants: {
         Row: {
-          created_at: string
+          game_wallet_private_key: string
           id: string
           invite_state: Database["public"]["Enums"]["match_invite_state"]
           match_id: string
           user_id: string
         }
         Insert: {
-          created_at?: string
+          game_wallet_private_key: string
           id?: string
           invite_state: Database["public"]["Enums"]["match_invite_state"]
           match_id: string
           user_id: string
         }
         Update: {
-          created_at?: string
+          game_wallet_private_key?: string
           id?: string
           invite_state?: Database["public"]["Enums"]["match_invite_state"]
           match_id?: string
@@ -58,14 +58,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "match_invites_match_id_fkey"
+            foreignKeyName: "match_participants_match_id_fkey"
             columns: ["match_id"]
             isOneToOne: false
             referencedRelation: "matches"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "match_invites_user_id_fkey"
+            foreignKeyName: "match_participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -78,18 +78,38 @@ export type Database = {
           created_at: string
           game_type: Database["public"]["Enums"]["game_type"]
           id: string
+          individual_trade_amount: number
+          individual_wage_amount: number
+          status: Database["public"]["Enums"]["match_status_state"]
+          token: string
         }
         Insert: {
           created_at?: string
           game_type: Database["public"]["Enums"]["game_type"]
           id?: string
+          individual_trade_amount: number
+          individual_wage_amount: number
+          status?: Database["public"]["Enums"]["match_status_state"]
+          token: string
         }
         Update: {
           created_at?: string
           game_type?: Database["public"]["Enums"]["game_type"]
           id?: string
+          individual_trade_amount?: number
+          individual_wage_amount?: number
+          status?: Database["public"]["Enums"]["match_status_state"]
+          token?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "matches_token_fkey"
+            columns: ["token"]
+            isOneToOne: false
+            referencedRelation: "support_tokens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       price_feed: {
         Row: {
@@ -109,6 +129,24 @@ export type Database = {
           price?: number
           symbol?: string
           timestamp?: string
+        }
+        Relationships: []
+      }
+      support_tokens: {
+        Row: {
+          id: string
+          name: string
+          token_pubkey: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          token_pubkey: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          token_pubkey?: string
         }
         Relationships: []
       }
@@ -135,14 +173,54 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      match_participants_view: {
+        Row: {
+          id: string | null
+          invite_state: Database["public"]["Enums"]["match_invite_state"] | null
+          match_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          invite_state?:
+            | Database["public"]["Enums"]["match_invite_state"]
+            | null
+          match_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          invite_state?:
+            | Database["public"]["Enums"]["match_invite_state"]
+            | null
+          match_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_participants_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
     }
     Enums: {
       game_type: "one_vs_one"
-      match_invite_state: "sent" | "expire" | "accepted" | "decline"
+      match_invite_state: "pending" | "expire" | "accepted" | "decline"
+      match_status_state: "pending" | "active" | "finished" | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never

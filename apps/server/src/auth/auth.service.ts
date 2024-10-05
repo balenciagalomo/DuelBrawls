@@ -5,8 +5,6 @@ import { nanoid } from 'nanoid'
 
 @Injectable()
 export class AuthService {
-  constructor() { }
-
   private generateNonce() {
     return nanoid()
   }

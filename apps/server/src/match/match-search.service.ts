@@ -1,12 +1,35 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
+import { ConfigService } from '@nestjs/config';
 import { createClient, RedisClientType, SchemaFieldTypes } from 'redis'
 import { RedisService } from '../database/redis.service';
 import { AppEvents } from '../events/events';
-import { MatchInviteRepository } from '../database/match-invite.repo';
+import { MatchParticipantRepository } from '../database/match-participant.repo';
 import { MatchRepository } from '../database/match.repo';
 import { UserRepository } from '../database/user.repo';
-import { GameType } from '../generated/enum.types';
+import { SupportTokenRepository } from '../database/support-token.repo';
+import { GameType, Match, SupportToken } from '../generated/enum.types';
+import { SecretMissingError } from '../config/error';
+
+type GameConfig = Pick<
+  Match,
+  'game_type' |
+  'individual_wage_amount' |
+  'individual_trade_amount'
+> & {
+  token: SupportToken
+}
+
+export const DEFAULT_GAME_CONFIG: Pick<
+  Match,
+  'game_type' |
+  'individual_wage_amount' |
+  'individual_trade_amount'
+> = {
+  game_type: 'one_vs_one',
+  individual_wage_amount: 50,
+  individual_trade_amount: 150
+}
 
 class MatchNotExistsError extends Error {
   public message = 'Match does not exists'
@@ -20,10 +43,11 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
   private redis: RedisClientType;
 
   constructor(
-    private readonly redisService: RedisService,
+    private readonly config: ConfigService,
     private readonly user: UserRepository,
     private readonly match: MatchRepository,
-    private readonly matchInvite: MatchInviteRepository
+    private readonly matchInvite: MatchParticipantRepository,
+    private readonly supportToken: SupportTokenRepository
   ) {
     this.redis = createClient({
       url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
@@ -32,9 +56,21 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
+  public async getDefaultGameConfig(): Promise<GameConfig> {
+    const defaultTokenName = this.config.get<string>('game.dafultTokenName');
+    if (!defaultTokenName) throw new SecretMissingError('game.dafultTokenName')
+    const usdc = await this.supportToken.findOneByName(defaultTokenName);
+    return {
+      game_type: 'one_vs_one',
+      token: usdc,
+      individual_wage_amount: 50,
+      individual_trade_amount: 150,
+    }
+  }
+
   public async onModuleInit() {
     await this.redis.connect()
-    await this.createMatchQueueSearchIndex().catch(console.error)
+    await this.createMatchQueueSearchIndex().catch((error) => this.logger.error(error))
     this.redis.on(AppEvents.MatchQueueUserAdded, this.userEnteredMatchQueue.bind(this))
   }
 
@@ -44,12 +80,18 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
 
   private async createMatchQueueSearchIndex() {
     // TODO: dev only should remove on staging / production
-    // await this.redis.ft.dropIndex('idx:match_queue');
+    await this.redis.ft.dropIndex('idx:match_queue');
     return this.redis.ft.create('idx:match_queue', {
       '$.game_type': {
         type: SchemaFieldTypes.TEXT,
       },
-      '$.bet_wage': {
+      '$.token': {
+        type: SchemaFieldTypes.TEXT,
+      },
+      '$.wage_amount': {
+        type: SchemaFieldTypes.NUMERIC,
+      },
+      '$.trade_amount': {
         type: SchemaFieldTypes.NUMERIC,
       }
     }, {
@@ -70,50 +112,66 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
 
   private async userEnteredMatchQueue(inputs: {
     pubkey: PublicKey,
-    gameType: GameType
+    gameType: GameType,
+    token: string,
+    wageAmount: number,
+    tradeAmount: number
   }) {
-    // TODO: Return all objects for now, because search isn't working properly
-    const results = await this.redis.ft.search('idx:match_queue', `*`, {
-      LIMIT: {
-        from: 0,
-        size: 2
-      }
-    })
 
-    if (results.total < 2) return;
-
-    // Remove keys from queue
-    await this.redis.del(results.documents.map(item => item.id))
-
-    // Create a match
-    const match = await this.match.create({
-      gameType: inputs.gameType
-    })
-
-    // Create invites
-    await Promise.all(results.documents.map(async item => {
-      if (!item.value.pubkey) {
-        throw new Error("Invalid pubkey")
-      }
-      const invite = await this.matchInvite.create({
-        matchId: match.id,
-        pubkey: new PublicKey(item.value.pubkey)
+    try {
+      // TODO: Return all objects for now, because search isn't working properly
+      const results = await this.redis.ft.search('idx:match_queue', `*`, {
+        LIMIT: {
+          from: 0,
+          size: 2
+        }
       })
 
-      const user = await this.user.findById(invite.user_id)
+      if (results.total < 2) return;
 
-      return {
-        id: invite.id,
-        pubkey: user.pubkey
-      }
-    }));
+      // Remove keys from queue
+      await this.redis.del(results.documents.map(item => item.id))
 
-    this.logger.log(`Match found, invites created`);
+      console.log('enter queue', inputs)
+      // Create a match
+      const match = await this.match.create({
+        gameType: inputs.gameType,
+        token: inputs.token,
+        individualWageAmount: inputs.wageAmount,
+        individualTradeAmount: inputs.tradeAmount
+      })
+
+      // Create invites
+      await Promise.all(results.documents.map(async item => {
+        if (!item.value.pubkey) {
+          throw new Error("Invalid pubkey")
+        }
+        const invite = await this.matchInvite.create({
+          matchId: match.id,
+          pubkey: new PublicKey(item.value.pubkey)
+        })
+
+        const user = await this.user.findById(invite.user_id)
+
+        return {
+          id: invite.id,
+          pubkey: user.pubkey
+        }
+      }));
+
+      this.logger.log(`Match found, invites created`);
+    } catch (e) {
+      this.logger.error(`Failed to create match: ${JSON.stringify({ error: e })}`)
+      throw e;
+    }
   }
 
   public async enterQueue(inputs: {
     pubkey: PublicKey,
+    token: string;
     gameType: GameType
+    wageAmount: number;
+    tradeAmount: number
   }) {
     const key = this.getMatchQueueItemKey({
       pubkey: inputs.pubkey
@@ -121,7 +179,9 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
     const metadata = {
       pubkey: inputs.pubkey.toBase58(),
       game_type: inputs.gameType,
-      bet_wage: 100,
+      token: inputs.token,
+      wage_amount: inputs.wageAmount,
+      trade_amount: inputs.tradeAmount,
       created_at: Date.now()
     };
     await this.redis.json.set(key, '$', metadata).catch(console.error);
@@ -133,7 +193,10 @@ export class MatchSearchService implements OnModuleInit, OnModuleDestroy {
 
     this.redis.emit(AppEvents.MatchQueueUserAdded, {
       pubkey: inputs.pubkey.toBase58(),
-      gameType: inputs.gameType
+      gameType: inputs.gameType,
+      token: inputs.token,
+      wageAmount: inputs.wageAmount,
+      tradeAmount: inputs.tradeAmount,
     })
 
     return {

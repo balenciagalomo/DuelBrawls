@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { PublicKey } from '@solana/web3.js';
-import { DatabaseService } from './database.service';
-import { Keypair } from '@solana/web3.js';
+import { PublicKey, Keypair } from '@solana/web3.js';
 import bs58 from 'bs58'
+
+import { DatabaseService } from './database.service';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly database: DatabaseService) { }
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly wallet: WalletService
+  ) { }
 
   public async create(inputs: {
     pubkey: PublicKey
@@ -15,7 +19,7 @@ export class UserRepository {
       .from('users')
       .insert({
         pubkey: inputs.pubkey.toBase58(),
-        wallet_private_key: bs58.encode(Keypair.generate().secretKey)
+        wallet_private_key: this.wallet.generatePrivateKey(),
       })
       .select()
       .single()
