@@ -1,6 +1,6 @@
 'use client';
 
-import { getAssociatedTokenAddress } from "@solana/spl-token";
+import { getAssociatedTokenAddress, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
@@ -34,8 +34,7 @@ type FetchTokenBalanceInputs = {
   mint: PublicKey
 };
 
-export function fetchTokenBalance(inputs: FetchTokenBalanceInputs) {
-  return getAssociatedTokenAddress(inputs.mint, inputs.wallet).then((ata) =>
-    inputs.connection.getTokenAccountBalance(ata)
-  );
+export async function fetchTokenBalance(inputs: FetchTokenBalanceInputs) {
+  const address = getAssociatedTokenAddressSync(inputs.mint, inputs.wallet)
+  return inputs.connection.getTokenAccountBalance(address)
 }

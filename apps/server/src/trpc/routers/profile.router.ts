@@ -40,9 +40,10 @@ export class ProfileRouter {
         mint: new PublicKey(config.token.token_pubkey),
         uiAmount: input.amount
       })
+      const serialized = Buffer.from(tx.serialize()).toString("base64")
       return {
         tx: {
-          serialized: Buffer.from(tx.serialize()).toString("base64")
+          serialized
         }
       }
     }),

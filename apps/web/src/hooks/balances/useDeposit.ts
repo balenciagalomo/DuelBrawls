@@ -17,8 +17,7 @@ export function useDeposit() {
         amount
       })
       
-      const message = VersionedMessage.deserialize(Buffer.from(results.tx.serialized, "base64"));
-      const transaction = new VersionedTransaction(message)
+      const transaction = VersionedTransaction.deserialize(Buffer.from(results.tx.serialized, "base64"));
       const signedTranaction = await wallet.signTransaction(transaction)
 
       const blockhash = await connection.getLatestBlockhash();
