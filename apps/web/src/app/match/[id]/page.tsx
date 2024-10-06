@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BonkDemoChart } from "@/components/atoms/Charts/BonkDemoChart";
 import { MatchResultDialog } from "@/components/atoms/MatchResultDialog/MatchResultDialog";
 import { TradePositions } from "@/components/atoms/TradePositions/TradePositions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 export default async function Match({ params }: { params: { id: string } }) {
@@ -22,7 +23,23 @@ export default async function Match({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
           <div className="w-full">
-            <TradePositions />
+            <Tabs defaultValue="active" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="active">Active</TabsTrigger>
+                <TabsTrigger value="closed">Closed</TabsTrigger>
+                <TabsTrigger value="opponent">Opponent</TabsTrigger>
+              </TabsList>
+              <TabsContent value="active">
+                <TradePositions />
+              </TabsContent>
+              <TabsContent value="closed">
+                <TradePositions />
+              </TabsContent>
+              <TabsContent value="opponent">
+                {/* <TradePositions /> */}
+              </TabsContent>
+            </Tabs>
+
           </div>
         </div>
         <div className="flex flex-col flex-auto w-[30%]" >
@@ -30,6 +47,6 @@ export default async function Match({ params }: { params: { id: string } }) {
           <MatchResultDialog />
         </div>
       </div>
-    </div>
+    </div >
   );
 }
