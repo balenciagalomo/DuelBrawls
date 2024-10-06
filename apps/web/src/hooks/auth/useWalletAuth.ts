@@ -7,12 +7,16 @@ import { useWallet, WalletContextState } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { trpc } from '@/app/trpc';
 import { assert } from '@/utils/assert';
+import { useQueryClient } from '@tanstack/react-query';
+import { useLocalAuthToken } from './useLocalAuthToken';
 
 export function useWalletAuth() {
   const [authenciated, setAuthenciated] = useState(false)
 
   const wallet = useWallet();
   const walletModal = useWalletModal();
+
+  const queryClient = useQueryClient()
 
   const debouncedWalletConnected = useDebounce(wallet.connected, 300)
 
@@ -43,6 +47,9 @@ export function useWalletAuth() {
         })
         localStorage.setItem('jwt', verified.token);
         setAuthenciated(true)
+        queryClient.invalidateQueries({
+          queryKey: [useLocalAuthToken.queryKey]
+        })
       })
   }
 
@@ -54,6 +61,15 @@ export function useWalletAuth() {
       })
     }
   }, [debouncedWalletConnected, onAuthSignMessage])
+
+  useEffect(() => {
+    if (!wallet.publicKey) {
+      localStorage.removeItem('jwt')
+      queryClient.invalidateQueries({
+        queryKey: [useLocalAuthToken.queryKey]
+      })
+    }
+  }, [wallet.publicKey])
 
   return {
     authenciated,

@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PublicKey } from '@solana/web3.js';
+import { Keypair } from '@solana/web3.js';
+import { ConfigService } from '@nestjs/config';
+import bs58 from 'bs58';
+
 import { MatchParticipantRepository } from '../database/match-participant.repo';
 import { MatchRepository } from '../database/match.repo';
 import { ACTIVE_MATCH_INVITE_STATE, Match } from '../generated/enum.types';
@@ -7,10 +11,8 @@ import { WalletService } from '../wallet/wallet.service';
 import { UserRepository } from '../database/user.repo';
 import { SupportTokenRepository } from '../database/support-token.repo';
 import { MatchParticipant, User } from '../generated/tables.types';
-import { ConfigService } from '@nestjs/config';
 import { SecretMissingError } from '../config/error';
-import bs58 from 'bs58';
-import { Keypair } from '@solana/web3.js';
+import { BalanceService } from '../wallet/balance.service';
 
 @Injectable()
 export class MatchService {
@@ -20,6 +22,7 @@ export class MatchService {
     private readonly match: MatchRepository,
     private readonly matchParticipant: MatchParticipantRepository,
     private readonly wallet: WalletService,
+    private readonly balance: BalanceService,
     private readonly supportToken: SupportTokenRepository
   ) { }
 
@@ -101,11 +104,11 @@ export class MatchService {
 
     const keypair = Keypair.fromSecretKey(bs58.decode(privateKeyString))
 
-    const tx = await this.wallet.splTransferTx({
+    const tx = await this.balance.splTransferTx({
       from: userSigner.publicKey,
       to: participantSigner.publicKey,
       mint: new PublicKey(token.token_pubkey),
-      payer: keypair,
+      payer: keypair.publicKey,
       uiAmount: depositAmount
     })
 
