@@ -47,5 +47,24 @@ export class ProfileRouter {
         }
       }
     }),
+    withdraw: this.trpc.protectedProcedure.input(z.object({
+      amount: z.number()
+    })).mutation(async ({ ctx, input }) => {
+      const config = await this.match.getDefaultGameConfig()
+      const tx = await this.balance.splTransferTx({
+        from: ctx.user.walletKeypair.publicKey,
+        to: ctx.user.pubkey,
+        mint: new PublicKey(config.token.token_pubkey),
+        uiAmount: input.amount,
+        payer: ctx.user.pubkey
+      })
+      tx.sign([ctx.user.walletKeypair])
+      const serialized = Buffer.from(tx.serialize()).toString("base64")
+      return {
+        tx: {
+          serialized
+        }
+      }
+    }),
   });
 }

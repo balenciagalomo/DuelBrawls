@@ -8,6 +8,7 @@ import { useWalletUSDCBalance } from '@/hooks/balances/useWalletUSDCBalance';
 import { Button } from '@/components/ui/button';
 import { FC, useState } from 'react';
 import { useDeposit } from '@/hooks/balances/useDeposit';
+import { useWithdraw } from '@/hooks/balances/useWithdraw';
 
 export function Balance() {
   const wallet = useWallet()
@@ -15,6 +16,7 @@ export function Balance() {
   const usdcUiAmount = usdcBalanceQuery.data?.value.uiAmount ?? 0
   const [popupVisible, setPopupVisible] = useState<boolean>(false)
   const { mutateAsync: deposit } = useDeposit()
+  const { mutateAsync: withdraw } = useWithdraw()
   const switchPopupVisibility = () => setPopupVisible(prev => !prev)
   if (!wallet.publicKey) return null;
   return (
@@ -36,7 +38,7 @@ export function Balance() {
         ?
         <div className="absolute flex flex-col top-16 left-0 gap-2 rounded-md bg-[#10141C] p-2" onClick={e => e.stopPropagation()}>
           <ActionRow label='Deposit' action={deposit}/>
-          <ActionRow label='Withdraw' action={deposit}/>
+          <ActionRow label='Withdraw' action={withdraw}/>
         </div>
         :
         null
