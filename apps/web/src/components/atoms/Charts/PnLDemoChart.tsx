@@ -1,9 +1,13 @@
 'use client';
 
-import React from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import React, { ReactElement } from 'react'
+import { StaticImageData } from 'next/image';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, DotProps } from 'recharts'
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
+
+import ExampleAvatar from '@/app/assets/images/example-avatar.png'
+import ExampleAvatar2 from '@/app/assets/images/example-avatar-2.png'
 
 const data = [
   { time: 0, DUMPLING: 1, BURGERBOB: 1 },
@@ -44,26 +48,46 @@ export function PnLDemoChart() {
         </div>
       </div>
       <div className="flex-grow">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} >
-            <CartesianGrid stroke="#FFFFFF0B"/>
-            <XAxis 
-              dataKey="time" 
+        <ResponsiveContainer width="100%" height="100%" className="[&_.recharts-surface]:overflow-visible">
+          <LineChart data={data} style={{ overflow: 'visible', marginRight: 24 }}>
+            <CartesianGrid stroke="#FFFFFF0B" />
+            <XAxis
+              dataKey="time"
               stroke="#4B5563"
               tickFormatter={(value) => value === 0 ? 'START' : value === 24 ? 'END' : `${value} HOURS`}
               points='a'
             />
-            <YAxis 
-              stroke="#4B5563" 
+            <YAxis
+              stroke="#4B5563"
               domain={[1, 2]}
-              ticks={[1, 1.25, 1.5, 1.75, 2]} 
+              ticks={[1, 1.25, 1.5, 1.75, 2]}
               tickFormatter={(value) => `${value}x`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="DUMPLING" stroke="#22D3EE" strokeWidth={2} dot={true} />
-            <Line type="monotone" dataKey="BURGERBOB" stroke="#4ADE80" strokeWidth={2} dot={{
-              className: 'bg-red-200'
-            }} />
+            <Line
+              type="monotone"
+              dataKey="DUMPLING"
+              stroke="#22D3EE"
+              strokeWidth={2}
+              dot={(props) => (
+                <ChartAvatar
+                  {...props}
+                  isLastItem={props.index === data.length - 1}
+                  avatar={ExampleAvatar}
+                />
+              )} />
+            <Line
+              type="monotone"
+              dataKey="BURGERBOB"
+              stroke="#4ADE80"
+              strokeWidth={2}
+              dot={(props) => (
+                <ChartAvatar
+                  {...props}
+                  isLastItem={props.index === data.length - 1}
+                  avatar={ExampleAvatar2}
+                />
+              )} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -80,3 +104,17 @@ export function PnLDemoChart() {
     </div>
   )
 }
+
+const ChartAvatar = (props: DotProps & {
+  size?: number;
+  avatar: StaticImageData;
+  isLastItem: boolean
+}): ReactElement<SVGElement> | undefined => {
+  const { size = 32, cx = 0, cy = 0, avatar } = props;
+  if (!props.isLastItem) return undefined
+  return (
+    <svg x={cx - (24 / 2)} y={cy - (size / 2)} width={size} height={size}>
+      <image href={avatar.src} height={size} width={size} />
+    </svg>
+  )
+};
