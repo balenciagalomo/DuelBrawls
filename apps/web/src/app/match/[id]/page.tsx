@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BonkDemoChart } from "@/components/atoms/Charts/BonkDemoChart";
 import { MatchResultDialog } from "@/components/atoms/MatchResultDialog/MatchResultDialog";
 import { TradePositions } from "@/components/atoms/TradePositions/TradePositions";
+import { ChatBox } from "@/components/atoms/ChatBox/ChatBox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
@@ -42,9 +43,10 @@ export default async function Match({ params }: { params: { id: string } }) {
 
           </div>
         </div>
-        <div className="flex flex-col flex-auto w-[30%]" >
+        <div className="flex flex-col flex-auto w-[30%]">
           <TradeBox />
           <MatchResultDialog />
+          <ChatBox />
         </div>
       </div>
     </div >
