@@ -31,7 +31,7 @@ export function TradePositions() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tradePositionsQuery.data?.map((item, index) => (
+        {tradePositionsQuery.data.map((item, index) => (
           <TradePositionRow key={index.toString()} position={item} />
         ))}
       </TableBody>

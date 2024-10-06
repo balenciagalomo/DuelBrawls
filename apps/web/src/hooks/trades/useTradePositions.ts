@@ -25,15 +25,16 @@ export type TradePosition = {
 const QUERY_KEY = 'trade-positions';
 
 export function useTradePositions() {
-  return useQuery({
+  return useQuery<TradePosition[]>({
     queryKey: [QUERY_KEY],
     queryFn: () => [
       MOCK_SOL_TRADE_POSITION,
       MOCK_WIF_TRADE_POSITION,
       MOCK_BONK_TRADE_POSITION,
       MOCK_SOL_TRADE_POSITION,
-      MOCK_BONK_TRADE_POSITION,,
-    ]
+      MOCK_BONK_TRADE_POSITION,
+    ],
+    initialData: []
   })
 }
 
