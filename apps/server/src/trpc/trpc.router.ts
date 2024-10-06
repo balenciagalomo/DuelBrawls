@@ -7,8 +7,7 @@ import { AuthRouter } from './routers/auth.router';
 import { ProfileRouter } from './routers/profile.router';
 import { MatchRouter } from './routers/match.router';
 import { TreasuryRouter } from './routers/treasury.router';
-import { JwtService } from '../auth/jwt.service';
-import { UserRepository } from '../database/user.repo';
+import { MatchMessageRouter } from './routers/message.router';
 
 @Injectable()
 export class TrpcRouter {
@@ -17,11 +16,10 @@ export class TrpcRouter {
 
   constructor(
     private readonly trpc: TrpcService,
-    private readonly jwt: JwtService,
-    private readonly userRepo: UserRepository,
     private readonly auth: AuthRouter,
     private readonly profile: ProfileRouter,
     private readonly match: MatchRouter,
+    private readonly message: MatchMessageRouter,
     private readonly treasury: TreasuryRouter
   ) {
   }
@@ -30,6 +28,7 @@ export class TrpcRouter {
     auth: this.auth.router,
     profile: this.profile.router,
     match: this.match.router,
+    message: this.message.router,
     treasury: this.treasury.router
   });
 

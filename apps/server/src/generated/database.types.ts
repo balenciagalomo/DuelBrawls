@@ -34,38 +34,41 @@ export type Database = {
   }
   public: {
     Tables: {
-      match_balance_feed: {
+      match_messages: {
         Row: {
-          balance: number
-          id: string
-          participant_id: string
-          timestamp: string
+          created_at: string
+          id: number
+          match_id: string
+          message: string
+          user_id: string
         }
         Insert: {
-          balance: number
-          id?: string
-          participant_id: string
-          timestamp?: string
+          created_at?: string
+          id?: number
+          match_id: string
+          message: string
+          user_id: string
         }
         Update: {
-          balance?: number
-          id?: string
-          participant_id?: string
-          timestamp?: string
+          created_at?: string
+          id?: number
+          match_id?: string
+          message?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "match_balance_feed_participant_id_fkey"
-            columns: ["participant_id"]
+            foreignKeyName: "match_messages_match_id_fkey"
+            columns: ["match_id"]
             isOneToOne: false
-            referencedRelation: "match_participants"
+            referencedRelation: "matches"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "match_balance_feed_participant_id_fkey"
-            columns: ["participant_id"]
+            foreignKeyName: "match_messages_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "match_participants_view"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]

@@ -6,6 +6,7 @@ import { MatchParticipantRepository } from './match-participant.repo';
 import { MatchRepository } from './match.repo';
 import { SupportTokenRepository } from './support-token.repo';
 import { WalletModule } from '../wallet/wallet.module';
+import { MatchMessageRepository } from './match-message.repo';
 
 @Module({
   imports: [WalletModule],
@@ -15,6 +16,7 @@ import { WalletModule } from '../wallet/wallet.module';
     RedisService,
     UserRepository,
     MatchParticipantRepository,
+    MatchMessageRepository,
     MatchRepository,
     SupportTokenRepository
   ],
@@ -22,6 +24,7 @@ import { WalletModule } from '../wallet/wallet.module';
     RedisService,
     UserRepository,
     MatchParticipantRepository,
+    MatchMessageRepository,
     MatchRepository,
     SupportTokenRepository
   ]
