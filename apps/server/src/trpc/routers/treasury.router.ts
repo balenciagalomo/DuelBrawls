@@ -40,11 +40,15 @@ export class TreasuryRouter {
       const keypair = Keypair.fromSecretKey(bs58.decode(privateKeyString))
       const mint = new PublicKey(mintString)
 
-      const tx = await this.balance.splTransferTx({
+      const instructions = await this.balance.splTransferIxs({
         from: keypair.publicKey,
         to: ctx.user.walletKeypair.publicKey,
         mint,
         uiAmount: 500
+      })
+      const tx = await this.balance.txFromIxs({
+        instructions,
+        payer: keypair.publicKey
       })
 
       return await this.wallet.execute({ tx, signers: [keypair] })

@@ -104,12 +104,16 @@ export class MatchService {
 
     const keypair = Keypair.fromSecretKey(bs58.decode(privateKeyString))
 
-    const tx = await this.balance.splTransferTx({
+    const instructions = await this.balance.splTransferIxs({
       from: userSigner.publicKey,
       to: participantSigner.publicKey,
       mint: new PublicKey(token.token_pubkey),
       payer: keypair.publicKey,
       uiAmount: depositAmount
+    })
+    const tx = await this.balance.txFromIxs({
+      instructions,
+      payer: keypair.publicKey
     })
 
     const { signature, status } = await this.wallet.execute({ tx, signers: [userSigner, keypair] })
