@@ -52,18 +52,18 @@ export function PnLDemoChart() {
               stroke="#4B5563"
               tickFormatter={(value) => value === 0 ? 'START' : value === 24 ? 'END' : `${value} HOURS`}
               points='a'
+              className="text-xs"
             />
             <YAxis 
               stroke="#4B5563" 
               domain={[1, 2]}
               ticks={[1, 1.25, 1.5, 1.75, 2]} 
               tickFormatter={(value) => `${value}x`}
+              className="text-xs"
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="DUMPLING" stroke="#22D3EE" strokeWidth={2} dot={true} />
-            <Line type="monotone" dataKey="BURGERBOB" stroke="#4ADE80" strokeWidth={2} dot={{
-              className: 'bg-red-200'
-            }} />
+            <Line type="monotone" dataKey="DUMPLING" stroke="#22D3EE" strokeWidth={2} dot />
+            <Line type="monotone" dataKey="BURGERBOB" stroke="#4ADE80" strokeWidth={2} dot />
           </LineChart>
         </ResponsiveContainer>
       </div>
