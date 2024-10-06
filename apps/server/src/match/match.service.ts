@@ -13,7 +13,7 @@ import { SupportTokenRepository } from '../database/support-token.repo';
 import { MatchParticipant, User } from '../generated/tables.types';
 import { SecretMissingError } from '../config/error';
 import { BalanceService } from '../wallet/balance.service';
-import { DriftTradingService } from 'src/trading/drift.service';
+import { DriftTradingService } from '../trading/drift.service';
 
 @Injectable()
 export class MatchService {
