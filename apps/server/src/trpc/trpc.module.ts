@@ -10,10 +10,11 @@ import { MatchModule } from '../match/match.module';
 import { TreasuryRouter } from './routers/treasury.router';
 import { WalletModule } from '../wallet/wallet.module';
 import { TradingModule } from '../trading/trading.module';
+import { MatchMessageRouter } from './routers/message.router';
 
 @Module({
   imports: [AuthModule, DatabaseModule, MatchModule, WalletModule, TradingModule],
   controllers: [],
-  providers: [TrpcService, TrpcRouter, AuthRouter, ProfileRouter, MatchRouter, TreasuryRouter],
+  providers: [TrpcService, TrpcRouter, AuthRouter, ProfileRouter, MatchRouter, MatchMessageRouter, TreasuryRouter],
 })
 export class TrpcModule { }
