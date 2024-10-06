@@ -35,8 +35,8 @@ export function Balance() {
         popupVisible
         ?
         <div className="absolute flex flex-col top-16 left-0 gap-2 rounded-md bg-[#10141C] p-2" onClick={e => e.stopPropagation()}>
-          <ActionRow label='Deposit' onClick={deposit}/>
-          <ActionRow label='Withdraw' onClick={deposit}/>
+          <ActionRow label='Deposit' action={deposit}/>
+          <ActionRow label='Withdraw' action={deposit}/>
         </div>
         :
         null
@@ -45,10 +45,15 @@ export function Balance() {
   )
 }
 
-const ActionRow: FC<{ label: string, onClick: (amount: number) => Promise<any> }> = ({
-  label, onClick
+const ActionRow: FC<{ label: string, action: (amount: number) => Promise<any> }> = ({
+  label, action
 }) => {
   const [inputAmount, setInputAmount] = useState<null | number>(null)
+  const onClick = async () => {
+    if (!inputAmount) return
+    await action(inputAmount)
+    setInputAmount(null)
+  }
   return (
       <div className='flex flex-row'>
         <input
@@ -61,6 +66,7 @@ const ActionRow: FC<{ label: string, onClick: (amount: number) => Promise<any> }
         <Button
           variant="secondary"
           style={{ width: '50%' }}
+          onClick={onClick}
         >
           {label}
         </Button>
