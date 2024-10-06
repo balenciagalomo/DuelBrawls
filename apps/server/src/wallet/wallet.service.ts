@@ -46,7 +46,7 @@ export class WalletService {
   private async confirmTransaction(
     signature: TransactionSignature,
     desiredConfirmationStatus: TransactionConfirmationStatus = 'confirmed',
-    timeout: number = 30000,
+    timeout: number = 60_000,
     pollInterval: number = 1000,
     searchTransactionHistory: boolean = false
   ): Promise<{
