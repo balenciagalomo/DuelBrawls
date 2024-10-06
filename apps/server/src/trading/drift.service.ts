@@ -80,11 +80,11 @@ export class DriftTradingService {
             [amount],
             async (driftClient, amount) => {
                 const depositAmount = new BN(amount).mul(QUOTE_PRECISION)
-                const [signature] = await driftClient.initializeUserAccountAndDepositCollateral(
+                const { ixs } = await driftClient.createInitializeUserAccountAndDepositCollateralIxs(
                     depositAmount,
                     getAssociatedTokenAddressSync(this.usdcTokenAddress, driftClient.wallet.publicKey)
                 )
-                return { signature }
+                return ixs
             }
         )
     }

@@ -114,22 +114,21 @@ export class MatchService {
       uiAmount: depositAmount
     })
     const solTransfer = await this.balance.solTransferIxs({
-      from: userSigner.publicKey,
+      from: keypair.publicKey,
       to: participantSigner.publicKey,
       uiAmount: 0.05
     })
+    const driftIxs = await this.drift.initializeUser(participantSigner, inputs.match.individual_trade_amount)
     const tx = await this.balance.txFromIxs({
-      instructions: [...solTransfer, ...splTransfer],
+      instructions: [...solTransfer, ...splTransfer, ...driftIxs],
       payer: keypair.publicKey
     })
 
-    const { signature, status } = await this.wallet.execute({ tx, signers: [userSigner, keypair] })
+    const { signature, status } = await this.wallet.execute({ tx, signers: [userSigner, keypair, participantSigner] })
 
     if (status.err) {
       throw new Error(status.err.toString())
     }
-
-    await this.drift.initializeUser(participantSigner, inputs.match.individual_trade_amount)
 
     return {
       signature
