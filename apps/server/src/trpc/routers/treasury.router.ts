@@ -9,6 +9,7 @@ import { TrpcService } from '../../trpc/trpc.service';
 import { UserRepository } from '../../database/user.repo';
 import { WalletService } from '../../wallet/wallet.service';
 import { SecretMissingError } from '../../config/error';
+import { BalanceService } from '../../wallet/balance.service';
 
 
 @Injectable()
@@ -17,6 +18,7 @@ export class TreasuryRouter {
     private readonly trpc: TrpcService,
     private readonly user: UserRepository,
     private readonly wallet: WalletService,
+    private readonly balance: BalanceService,
     private readonly config: ConfigService
   ) { }
 
@@ -38,13 +40,10 @@ export class TreasuryRouter {
       const keypair = Keypair.fromSecretKey(bs58.decode(privateKeyString))
       const mint = new PublicKey(mintString)
 
-      console.log('to', ctx.user.walletKeypair.publicKey.toBase58()
-)
-      const tx = await this.wallet.splTransferTx({
+      const tx = await this.balance.splTransferTx({
         from: keypair.publicKey,
         to: ctx.user.walletKeypair.publicKey,
         mint,
-        payer: keypair,
         uiAmount: 500
       })
 

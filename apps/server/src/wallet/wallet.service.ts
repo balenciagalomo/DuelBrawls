@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, createAssociatedTokenAccountIdempotentInstruction, createTransferInstruction, getAssociatedTokenAddressSync, getOrCreateAssociatedTokenAccount, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   VersionedTransaction,
-  TransactionMessage,
   TransactionSignature,
   SignatureStatus,
   TransactionConfirmationStatus,
   Keypair,
-  PublicKey,
   Signer,
-  ParsedAccountData,
 } from '@solana/web3.js';
 import bs58 from 'bs58';
 
@@ -36,64 +32,6 @@ export class WalletService {
 
   public keypairFromPrivateKey(input: string) {
     return Keypair.fromSecretKey(bs58.decode(input))
-  }
-
-  public async splTransferTx(inputs: {
-    from: PublicKey;
-    to: PublicKey;
-    mint: PublicKey;
-    uiAmount: number,
-    payer: Signer
-  }) {
-    const sourceATA = getAssociatedTokenAddressSync(
-      inputs.mint,
-      inputs.from
-    )
-
-    const destinationATA = getAssociatedTokenAddressSync(
-      inputs.mint,
-      inputs.to
-    )
-
-    const decimals = await this.getNumberDecimals(inputs.mint);
-
-    const blockhash = await this.connection.connection.getLatestBlockhash().then(res => res.blockhash);
-
-    const messageV0 = new TransactionMessage({
-      payerKey: inputs.payer.publicKey,
-      recentBlockhash: blockhash,
-      instructions: [
-        createAssociatedTokenAccountIdempotentInstruction(
-          inputs.payer.publicKey,
-          sourceATA,
-          inputs.from,
-          inputs.mint,
-        ),
-        createAssociatedTokenAccountIdempotentInstruction(
-          inputs.payer.publicKey,
-          destinationATA,
-          inputs.to,
-          inputs.mint,
-        ),
-        createTransferInstruction(
-          sourceATA,
-          destinationATA,
-          inputs.from,
-          inputs.uiAmount * Math.pow(10, decimals)
-        )
-      ],
-    }).compileToV0Message();
-
-    return new VersionedTransaction(messageV0)
-  }
-
-  private async getNumberDecimals(mint: PublicKey): Promise<number> {
-    const info = await this.connection.connection.getParsedAccountInfo(mint);
-    if (!info.value) {
-      throw new Error('Unable to get token account data')
-    }
-    const result = (info.value.data as ParsedAccountData).parsed.info.decimals as number;
-    return result;
   }
 
   public async execute(inputs: {
