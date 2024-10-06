@@ -174,4 +174,15 @@ export class DriftTradingService {
             }
         )
     }
+
+    public async closeUserAccount (keypair: Keypair) {
+        return this.withDriftClient(
+            keypair,
+            [],
+            async (driftClient) => {
+                const signature = await driftClient.deleteUser()
+                return { signature }
+            }
+        )
+    }
 }

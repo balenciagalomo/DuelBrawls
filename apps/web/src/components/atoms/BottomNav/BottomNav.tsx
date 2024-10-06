@@ -17,8 +17,8 @@ export function BottomNav(props: BottomNavProps) {
   const tradeButtonVariant = lastPathComponent === 'trades' ? 'action' : 'ghost'
 
   return (
-    <div className='fixed max-w-3xl mx-auto w-full flex flex-1 self-center rounded-xl border p-4 mb-8 bottom-0 flex-grow-0 justify-between items-center bg-background'>
-      <div className='flex flex-row'>
+    <div className='fixed mx-auto flex self-center rounded-xl border p-4 mb-8 bottom-0 flex-grow-0 justify-between items-center bg-background gap-x-4'>
+      <div className='flex flex-row gap-x-2'>
         <Button variant={overviewButtonVariant} size="lg" className="py-6" onClick={onOverviewSelected}>
           Overview
         </Button>

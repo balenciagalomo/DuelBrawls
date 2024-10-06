@@ -11,7 +11,7 @@ import { BottomNav } from "@/components/atoms/BottomNav/BottomNav";
 export default function PnLDemoPage() {
   return (
     <div className="flex w-full flex-row flex-1 justify-between items-start gap-x-4">
-      <div className="flex flex-col w-[70%] h-full overflow-hidden pb-24">
+      <div className="flex flex-col flex-1 h-full overflow-hidden pb-24">
         <div className="flex flex-col w-full min-h-[60vh] mb-12">
           <PnLDemoChart />
         </div>
@@ -33,9 +33,6 @@ export default function PnLDemoPage() {
             <TradePositions />
           </CollapsibleContent>
         </Collapsible>
-      </div>
-      <div className="flex flex-col flex-auto w-[30%]">
-        <TradeBox />
       </div>
     </div>
   );

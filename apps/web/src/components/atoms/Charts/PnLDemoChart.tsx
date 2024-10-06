@@ -56,12 +56,14 @@ export function PnLDemoChart() {
               stroke="#4B5563"
               tickFormatter={(value) => value === 0 ? 'START' : value === 24 ? 'END' : `${value} HOURS`}
               points='a'
+              className="text-xs"
             />
             <YAxis
               stroke="#4B5563"
               domain={[1, 2]}
               ticks={[1, 1.25, 1.5, 1.75, 2]}
               tickFormatter={(value) => `${value}x`}
+              className="text-xs"
             />
             <Tooltip content={<CustomTooltip />} />
             <Line
