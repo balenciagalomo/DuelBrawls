@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "../../ui/avatar"
 
@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export function PnLDemoChart() {
   return (
-    <div className="w-full h-full bg-gray-950 p-8 flex flex-col">
+    <div className="w-full h-full bg-[#10141C] p-8 flex flex-col rounded-md">
       <div className="mb-4 flex space-x-4">
         <div className="flex items-center">
           <div className="w-4 h-4 bg-cyan-400 mr-2"></div>
@@ -45,21 +45,25 @@ export function PnLDemoChart() {
       </div>
       <div className="flex-grow">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={data} >
+            <CartesianGrid stroke="#FFFFFF0B"/>
             <XAxis 
               dataKey="time" 
               stroke="#4B5563"
               tickFormatter={(value) => value === 0 ? 'START' : value === 24 ? 'END' : `${value} HOURS`}
+              points='a'
             />
             <YAxis 
               stroke="#4B5563" 
-              domain={[1, 2]} 
-              ticks={[1, 1.5, 2]} 
+              domain={[1, 2]}
+              ticks={[1, 1.25, 1.5, 1.75, 2]} 
               tickFormatter={(value) => `${value}x`}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="DUMPLING" stroke="#22D3EE" strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="BURGERBOB" stroke="#4ADE80" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="DUMPLING" stroke="#22D3EE" strokeWidth={2} dot={true} />
+            <Line type="monotone" dataKey="BURGERBOB" stroke="#4ADE80" strokeWidth={2} dot={{
+              className: 'bg-red-200'
+            }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

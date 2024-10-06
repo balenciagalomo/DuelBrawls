@@ -52,7 +52,7 @@ function TradePositionRow(props: TradePositionRowProps) {
   const tradeDirectionColorClass = position.type === 'up' ? 'text-trade-up' : 'text-trade-down'
   const tradeDirectionLabel = position.type === 'up' ? 'Long' : 'Short'
   return (
-    <TableRow>
+    <TableRow className="bg-[#10141C]">
       <TableCell>
         <div className="flex flex-row items-center gap-x-1">
           <PriceDirection size={10} priceDirection={position.type} />
