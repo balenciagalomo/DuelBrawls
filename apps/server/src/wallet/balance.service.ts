@@ -45,12 +45,6 @@ export class BalanceService {
       instructions: [
         createAssociatedTokenAccountIdempotentInstruction(
           payer,
-          sourceATA,
-          inputs.from,
-          inputs.mint,
-        ),
-        createAssociatedTokenAccountIdempotentInstruction(
-          payer,
           destinationATA,
           inputs.to,
           inputs.mint,
