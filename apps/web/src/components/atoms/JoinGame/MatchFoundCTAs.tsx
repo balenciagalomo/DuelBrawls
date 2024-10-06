@@ -37,7 +37,7 @@ export function MatchFoundCTAs() {
     return (
       <Button
         variant='action'
-        onClick={() => router.push(`/match/${activeMatchQuery.data?.match.id}`)}>
+        onClick={() => router.push(`/match/${activeMatchQuery.data?.match.id}/trades`)}>
         Enter match
       </Button>
     )

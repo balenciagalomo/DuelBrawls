@@ -1,11 +1,8 @@
 'use client';
 
 import { supabase } from "@/utils/supabase";
-import { useRouter } from "next/navigation";
 
 export function useMatchReadyListener(enabled?: boolean) {
-  const router = useRouter()
-
   const listen = (matchId: string) => {
     const channels = supabase.channel('match_search')
       .on(
