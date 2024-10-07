@@ -90,10 +90,10 @@ export class DriftTradingService {
     }
 
     public async placeOrder (keypair: Keypair, amount: number) {
-        return this.withDriftClient(
+        return this.withUserClient(
             keypair,
             [],
-            async (driftClient) => {
+            async (driftClient, userClient) => {
                 const marketAccount = driftClient.getPerpMarketAccount(this.market.marketIndex)
                 if (!marketAccount) throw new Error('Market account not found')
                 const signature = await driftClient.placePerpOrder(
@@ -103,6 +103,14 @@ export class DriftTradingService {
                         marketIndex: marketAccount.marketIndex
                     })
                 )
+                let filled = false
+                while (!filled) {
+                    const orders = userClient.getOpenOrders()
+                    if (!orders.find(o => o.marketIndex === this.market.marketIndex)) {
+                        filled = true
+                    }
+                    await new Promise(res => setTimeout(res, 1_000))
+                }
                 return { signature }
             }
         )
@@ -152,13 +160,18 @@ export class DriftTradingService {
             [],
             async (driftClient, userClient) => {
                 const position = userClient.getPerpPosition(this.market.marketIndex)
-                if (!position) throw new Error('No open position')
+                if (!position || position.baseAssetAmount.eq(new BN(0))) return null
+                
+                const entry = position.quoteEntryAmount.toNumber()
                 const priceData = driftClient.getOracleDataForPerpMarket(this.market.marketIndex)
-                const currentValue = userClient.getPerpPositionValue(this.market.marketIndex, priceData)
+                const currentValue = userClient.getPerpPositionValue(this.market.marketIndex, priceData).toNumber()
+                const direction = entry < 0 ? "long" : "short"
         
                 return {
-                    amount: position.baseAssetAmount,
-                    currentValue
+                    amount: Math.abs(position.baseAssetAmount.toNumber()),
+                    entry: Math.abs(entry),
+                    currentValue,
+                    direction
                 }
             }
         )

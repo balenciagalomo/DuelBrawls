@@ -3,17 +3,20 @@
 import Image from 'next/image'
 import { useState } from "react";
 
-import USDC from '@/app/assets/svgs/usdc.svg'
+import BonkTickerImage from '@/app/assets/images/tickers/bonk.png'
 import { TradeDirectionButton, } from "@/components/atoms/TradeBox/TradeDirectionButton";
 import { getBorderColorClass, getTradeBackgroundColorClass, getTradeTextClass } from "@/components/atoms/TradeBox/styles";
 import { TradeDirection } from '@/types/TradeDirection'
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
+import { usePlaceDriftTradeOrder } from '@/hooks/trades/usePlaceDriftTradeOrder';
 
 export function TradeBox() {
   const [selectedDirection, setSelectedDirection] = useState<TradeDirection>('up');
   const [showFutureOrders, setFutureOrders] = useState(false);
+  const [inputAmount, setInputAmount] = useState<null | number>(null)
+  const { mutateAsync, isPending } = usePlaceDriftTradeOrder()
 
   return (
     <div className="w-full flex flex-col bg-card rounded-md px-4 py-4 gap-y-5">
@@ -37,11 +40,15 @@ export function TradeBox() {
       {/* Position size input */}
       <div className="flex flex-row justify-start items-center gap-x-4 bg-[#151A22] p-4 rounded-md">
         <div className='flex flex-row gap-x-2'>
-          <Image src={USDC} width={24} height={24} alt='usdc' />
-          <p className='text-base'>$</p>
+          <Image src={BonkTickerImage} width={24} height={24} alt='1MBONK' />
+          <p className='text-base'>$1MBONK</p>
           <input
             className='text-base bg-transparent outline-none'
-            defaultValue={10000} />
+            defaultValue={10000} 
+            placeholder='Value'
+            value={inputAmount ? inputAmount.toString() : ''}
+            onChange={e => setInputAmount(e.target.value ? Number(e.target.value) : null)}
+            />
         </div>
       </div>
 
@@ -87,7 +94,7 @@ export function TradeBox() {
           />
         </div>}
 
-      <Button variant={selectedDirection} >
+      <Button variant={selectedDirection} isLoading={isPending} disabled={!inputAmount} onClick={() => mutateAsync([inputAmount!, selectedDirection])}>
         Place trade
       </Button>
     </div>

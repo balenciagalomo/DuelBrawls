@@ -103,53 +103,56 @@ export class MatchRouter {
     trade: this.trpc.protectedProcedure
       .input(
         z.object({
-          participantId: z.string(),
+          matchId: z.string(),
           amount: z.number(),
           direction: z.enum(["long", "short"])
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const participant = await this.matchParticipant.findWalletByParticipantId(input.participantId)
-        if (participant.user_id !== ctx.user.id || !participant.match_id) {
+        const participant = await this.matchParticipant.findParticipant({ matchId: input.matchId, userId: ctx.user.id })
+        if (!participant || !participant.id) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
-        const match = await this.match.findOneById(participant.match_id)
+        const participantWallet = await this.matchParticipant.findWalletByParticipantId(participant.id)
+        const match = await this.match.findOneById(input.matchId)
         if (match.status !== "active") {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
         await this.drift.placeOrder(
-          this.wallet.keypairFromPrivateKey(participant.game_wallet_private_key),
+          this.wallet.keypairFromPrivateKey(participantWallet.game_wallet_private_key),
           input.direction === "long" ? input.amount : -input.amount
         )
       }),
     balance: this.trpc.protectedProcedure
       .input(
         z.object({
-          participantId: z.string()
+          matchId: z.string(),
         })
       )
       .query(async ({ ctx, input }) => {
-        const participant = await this.matchParticipant.findWalletByParticipantId(input.participantId)
-        if (participant.user_id !== ctx.user.id || !participant.match_id) {
+        const participant = await this.matchParticipant.findParticipant({ matchId: input.matchId, userId: ctx.user.id })
+        if (!participant || !participant.id) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
+        const participantWallet = await this.matchParticipant.findWalletByParticipantId(participant.id)
         return await this.drift.getUserUSDBalance(
-          this.wallet.keypairFromPrivateKey(participant.game_wallet_private_key)
+          this.wallet.keypairFromPrivateKey(participantWallet.game_wallet_private_key)
         )
       }),
     position: this.trpc.protectedProcedure
       .input(
         z.object({
-          participantId: z.string()
+          matchId: z.string(),
         })
       )
       .query(async ({ ctx, input }) => {
-        const participant = await this.matchParticipant.findWalletByParticipantId(input.participantId)
-        if (participant.user_id !== ctx.user.id || !participant.match_id) {
+        const participant = await this.matchParticipant.findParticipant({ matchId: input.matchId, userId: ctx.user.id })
+        if (!participant || !participant.id) {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
+        const participantWallet = await this.matchParticipant.findWalletByParticipantId(participant.id)
         return await this.drift.getUserPosition(
-          this.wallet.keypairFromPrivateKey(participant.game_wallet_private_key)
+          this.wallet.keypairFromPrivateKey(participantWallet.game_wallet_private_key)
         )
       }),
   });
