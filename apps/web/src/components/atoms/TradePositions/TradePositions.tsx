@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { TradePosition, useTradePositions } from "@/hooks/trades/useTradePositions"
 import { PriceDirection } from "../PriceDirection"
 import { usePlaceDriftTradeOrder } from "@/hooks/trades/usePlaceDriftTradeOrder";
+import { toast } from "sonner";
 
 export function TradePositions() {
   const tradePositionsQuery = useTradePositions();
@@ -49,10 +50,14 @@ function TradePositionRow(props: TradePositionRowProps) {
   const { position } = props;
   const { mutateAsync, isPending } = usePlaceDriftTradeOrder()
   const onClose = async () => {
-    await mutateAsync([
+    const tx = await mutateAsync([
       Number(position.betAmount),
       position.type === "down" ? "up" : "down"
     ])
+    toast(
+      `Trade filled`,
+      { action: { label: 'View on solscan', onClick: () => window.open(`https://solscan.io/tx/${tx}`, '_blank') } }
+    )
   }
 
   const tradeDirectionColorClass = position.type === 'up' ? 'text-trade-up' : 'text-trade-down'
