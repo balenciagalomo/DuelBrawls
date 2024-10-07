@@ -1,5 +1,6 @@
 insert into support_tokens
   (name, token_pubkey)
 values
-  ('USDC', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'),
-  ('USDC (devnet)', '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU')
+  ('USDC', 'FSxJ85FXVsXSr51SeWf9ciJWTcRnqKFSmBgRDeL3KyWw'),
+  ('USDC (devnet)', '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'),
+  ('USDC (fake)', 'DhY8Ev1dWJChmx1fj6RwMnWrisx8LziKuJq7rXmYYo1s')

@@ -18,6 +18,8 @@ export function TradeBox() {
   const [inputAmount, setInputAmount] = useState<null | number>(null)
   const { mutateAsync, isPending } = usePlaceDriftTradeOrder()
 
+  const mockTx = "https://solscan.io/tx/46CCEMqNyFeU3ev3vkS6pScScW7xiSTW4JsiYRd1McYHZtkSNg3w5yBHcBdTWs4yt2UFnyaQhSz7ptMpgZGryoyn"
+
   return (
     <div className="w-full flex flex-col bg-card rounded-md px-4 py-4 gap-y-5">
 
