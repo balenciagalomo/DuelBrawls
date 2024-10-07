@@ -3,18 +3,21 @@
 import Image from 'next/image'
 import { useState } from "react";
 
-import USDC from '@/app/assets/svgs/usdc.svg'
+import BonkTickerImage from '@/app/assets/images/tickers/bonk.png'
 import { TradeDirectionButton, } from "@/components/atoms/TradeBox/TradeDirectionButton";
 import { getBorderColorClass, getTradeBackgroundColorClass, getTradeTextClass } from "@/components/atoms/TradeBox/styles";
 import { TradeDirection } from '@/types/TradeDirection'
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { toast } from 'sonner';
+import { usePlaceDriftTradeOrder } from '@/hooks/trades/usePlaceDriftTradeOrder';
+import { toast } from "sonner";
 
 export function TradeBox() {
   const [selectedDirection, setSelectedDirection] = useState<TradeDirection>('up');
   const [showFutureOrders, setFutureOrders] = useState(false);
+  const [inputAmount, setInputAmount] = useState<null | number>(null)
+  const { mutateAsync, isPending } = usePlaceDriftTradeOrder()
 
   const mockTx = "https://solscan.io/tx/46CCEMqNyFeU3ev3vkS6pScScW7xiSTW4JsiYRd1McYHZtkSNg3w5yBHcBdTWs4yt2UFnyaQhSz7ptMpgZGryoyn"
 
@@ -40,11 +43,15 @@ export function TradeBox() {
       {/* Position size input */}
       <div className="flex flex-row justify-start items-center gap-x-4 bg-[#151A22] p-4 rounded-md">
         <div className='flex flex-row gap-x-2'>
-          <Image src={USDC} width={24} height={24} alt='usdc' />
-          <p className='text-base'>$</p>
+          <Image src={BonkTickerImage} width={24} height={24} alt='1MBONK' />
+          <p className='text-base'>$1MBONK</p>
           <input
             className='text-base bg-transparent outline-none'
-            defaultValue={10000} />
+            defaultValue={10000} 
+            placeholder='Value'
+            value={inputAmount ? inputAmount.toString() : ''}
+            onChange={e => setInputAmount(e.target.value ? Number(e.target.value) : null)}
+            />
         </div>
       </div>
 
@@ -90,7 +97,10 @@ export function TradeBox() {
           />
         </div>}
 
-      <Button variant={selectedDirection} onClick={() => toast(`Tx : ${mockTx}`)}>
+      <Button variant={selectedDirection} isLoading={isPending} disabled={!inputAmount} onClick={() => {
+        mutateAsync([inputAmount!, selectedDirection])
+        .then(tx => toast(`Tx: ${tx}`))
+      }}>
         Place trade
       </Button>
     </div>

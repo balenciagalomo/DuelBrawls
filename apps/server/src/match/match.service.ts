@@ -13,6 +13,7 @@ import { SupportTokenRepository } from '../database/support-token.repo';
 import { MatchParticipant, User } from '../generated/tables.types';
 import { SecretMissingError } from '../config/error';
 import { BalanceService } from '../wallet/balance.service';
+import { DriftTradingService } from '../trading/drift.service';
 
 @Injectable()
 export class MatchService {
@@ -23,7 +24,8 @@ export class MatchService {
     private readonly matchParticipant: MatchParticipantRepository,
     private readonly wallet: WalletService,
     private readonly balance: BalanceService,
-    private readonly supportToken: SupportTokenRepository
+    private readonly supportToken: SupportTokenRepository,
+    private readonly drift: DriftTradingService
   ) { }
 
   public async findActiveMatchByUserId(userId: string) {
@@ -104,15 +106,25 @@ export class MatchService {
 
     const keypair = Keypair.fromSecretKey(bs58.decode(privateKeyString))
 
-    const tx = await this.balance.splTransferTx({
+    const splTransfer = await this.balance.splTransferIxs({
       from: userSigner.publicKey,
       to: participantSigner.publicKey,
       mint: new PublicKey(token.token_pubkey),
       payer: keypair.publicKey,
       uiAmount: depositAmount
     })
+    const solTransfer = await this.balance.solTransferIxs({
+      from: keypair.publicKey,
+      to: participantSigner.publicKey,
+      uiAmount: 0.05
+    })
+    const driftIxs = await this.drift.initializeUser(participantSigner, inputs.match.individual_trade_amount)
+    const tx = await this.balance.txFromIxs({
+      instructions: [...solTransfer, ...splTransfer, ...driftIxs],
+      payer: keypair.publicKey
+    })
 
-    const { signature, status } = await this.wallet.execute({ tx, signers: [userSigner, keypair] })
+    const { signature, status } = await this.wallet.execute({ tx, signers: [userSigner, keypair, participantSigner] })
 
     if (status.err) {
       throw new Error(status.err.toString())
