@@ -19,8 +19,6 @@ export function TradeBox() {
   const [inputAmount, setInputAmount] = useState<null | number>(null)
   const { mutateAsync, isPending } = usePlaceDriftTradeOrder()
 
-  const mockTx = "https://solscan.io/tx/46CCEMqNyFeU3ev3vkS6pScScW7xiSTW4JsiYRd1McYHZtkSNg3w5yBHcBdTWs4yt2UFnyaQhSz7ptMpgZGryoyn"
-
   return (
     <div className="w-full flex flex-col bg-card rounded-md px-4 py-4 gap-y-5">
 
@@ -99,7 +97,7 @@ export function TradeBox() {
 
       <Button variant={selectedDirection} isLoading={isPending} disabled={!inputAmount} onClick={() => {
         mutateAsync([inputAmount!, selectedDirection])
-        .then(tx => toast(`Tx: ${tx}`))
+        .then(tx => toast(`Tx: https://solscan.io/tx/${tx}`))
       }}>
         Place trade
       </Button>
