@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { NavHeader } from "@/components/atoms/Nav/NavHeader";
 import { Providers } from "@/contexts/Providers";
+import { Toaster } from 'sonner'
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${protoMono.variable} antialiased min-h-screen flex flex-col font-[family-name:var(--font-proto-mono)]`}
       >
         <Providers>
+          <Toaster position={"bottom-left"} />
           <NavHeader />
           <div className="w-full px-8 flex flex-1">
             {children}
