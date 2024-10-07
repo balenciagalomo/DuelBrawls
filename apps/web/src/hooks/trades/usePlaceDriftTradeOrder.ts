@@ -12,11 +12,12 @@ export function usePlaceDriftTradeOrder() {
   return useMutation({
     mutationFn: async ([amount, direction]: [amount: number, direction: TradeDirection]) => {
       if (!meQuery.data?.id) throw new Error('User is not logged in')
-      await trpc.match.trade.mutate({
+      const res = await trpc.match.trade.mutate({
         amount,
         matchId,
         direction: direction === "up" ? "long" : "short"
       })
+      return res
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

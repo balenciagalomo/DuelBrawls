@@ -118,10 +118,11 @@ export class MatchRouter {
         if (match.status !== "active") {
           throw new TRPCError({ code: 'UNAUTHORIZED' })
         }
-        await this.drift.placeOrder(
+        const tx = await this.drift.placeOrder(
           this.wallet.keypairFromPrivateKey(participantWallet.game_wallet_private_key),
           input.direction === "long" ? input.amount : -input.amount
         )
+        return tx.signature
       }),
     balance: this.trpc.protectedProcedure
       .input(

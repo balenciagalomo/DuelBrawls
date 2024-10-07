@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { usePlaceDriftTradeOrder } from '@/hooks/trades/usePlaceDriftTradeOrder';
+import { toast } from "sonner";
 
 export function TradeBox() {
   const [selectedDirection, setSelectedDirection] = useState<TradeDirection>('up');
@@ -96,7 +97,10 @@ export function TradeBox() {
           />
         </div>}
 
-      <Button variant={selectedDirection} isLoading={isPending} disabled={!inputAmount} onClick={() => mutateAsync([inputAmount!, selectedDirection])}>
+      <Button variant={selectedDirection} isLoading={isPending} disabled={!inputAmount} onClick={() => {
+        mutateAsync([inputAmount!, selectedDirection])
+        .then(tx => toast(`Tx: ${tx}`))
+      }}>
         Place trade
       </Button>
     </div>
