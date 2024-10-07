@@ -97,7 +97,10 @@ export function TradeBox() {
 
       <Button variant={selectedDirection} isLoading={isPending} disabled={!inputAmount} onClick={() => {
         mutateAsync([inputAmount!, selectedDirection])
-        .then(tx => toast(`Tx: https://solscan.io/tx/${tx}`))
+        .then(tx => toast(
+          `Trade filled`,
+          { action: { label: 'View on solscan', onClick: () => window.open(`https://solscan.io/tx/${tx}`, '_blank') } }
+        ))
       }}>
         Place trade
       </Button>
